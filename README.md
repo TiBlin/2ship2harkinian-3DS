@@ -14,7 +14,7 @@ The current development build:
 - boots and runs on a real New Nintendo 3DS;
 - reaches gameplay;
 - is still experimental and not considered a stable release.
-- 
+  
 ## Hardware demonstration
 
 The current experimental 2Ship2Harkinian-3DS development build has been tested on real New Nintendo 3DS XL hardware.
