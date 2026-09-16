@@ -13,6 +13,7 @@ The current development build:
 - compiles as `.3dsx` and `.cia`;
 - boots and runs on a real New Nintendo 3DS;
 - reaches gameplay;
+- has a 3D stereoscopic mode;
 - is still experimental and not considered a stable release.
   
 ## Hardware demonstration
