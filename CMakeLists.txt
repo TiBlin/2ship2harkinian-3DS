@@ -1,317 +1,159 @@
-cmake_minimum_required(VERSION 3.26.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.26)
+project(TwoShip3DS VERSION 5.0.1 LANGUAGES C CXX)
+if(NOT N3DS)
+    message(FATAL_ERROR "Use -DCMAKE_TOOLCHAIN_FILE=cmake/3DS.cmake with DEVKITPRO set")
+endif()
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(PORTLIBS "${DEVKITPRO}/portlibs/3ds")
+set(MM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/2ship")
+set(MM_DIR "${MM_ROOT}/mm")
+set(LUS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libultraship")
+set(LUS_BUILD "${LUS_DIR}/build-3ds" CACHE PATH "Matching V7 LUS build")
+set(DEPS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/build-deps")
+option(TWOSHIP3DS_EMULATOR_SAFE "Skip New 3DS CPU service in emulators" OFF)
+option(TWOSHIP3DS_MEMORY_WATCH "Diagnostic: stop bulk writes over game-state pointers" OFF)
+add_compile_definitions(CONTROLLERBUTTONS_T=uint32_t F3DEX_GBI_2 NDEBUG
+    INCLUDE_GAME_PRINTF LOG_LEVEL_GAME_PRINTS=6 NON_MATCHING NON_EQUIVALENT)
+include("${MM_ROOT}/CMake/2ship-cvars.cmake")
+file(READ "${MM_ROOT}/CMake/lus-cvars.cmake" _cvars)
+string(REPLACE "include(\"libultraship/cmake/cvars.cmake\")" "" _cvars "${_cvars}")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lus-cvars-local.cmake" "${_cvars}")
+include("${CMAKE_CURRENT_BINARY_DIR}/lus-cvars-local.cmake")
+include("${LUS_DIR}/cmake/cvars.cmake")
 
-set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
-set(CMAKE_CXX_STANDARD 20 CACHE STRING "The C++ standard to use")
+set(PROJECT_BUILD_NAME "Battler Bravo / 3DS experimental V7 base")
+set(PROJECT_TEAM "HarbourMasters; 3DS V7 contributors")
+set(CMAKE_PROJECT_GIT_BRANCH "3ds-experimental")
+set(CMAKE_PROJECT_GIT_COMMIT_HASH "6bfd6a3")
+set(CMAKE_PROJECT_GIT_COMMIT_TAG "")
+configure_file("${MM_DIR}/src/boot/build.c.in" "${CMAKE_CURRENT_BINARY_DIR}/mm-build.c" @ONLY)
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
-set(GAME_STR "MM")
-project(2s2h VERSION 5.0.1 LANGUAGES C CXX)
-include(CMake/2ship-cvars.cmake)
-include(CMake/lus-cvars.cmake)
-set(SPDLOG_LEVEL_TRACE 0)
-set(SPDLOG_LEVEL_OFF 6)
-set(SPDLOG_MIN_CUTOFF SPDLOG_LEVEL_TRACE CACHE STRING "cutoff at trace")
-set(PROJECT_BUILD_NAME "Battler Bravo" CACHE STRING "" FORCE)
-set(PROJECT_TEAM "github.com/harbourmasters" CACHE STRING "" FORCE)
+set(COMMON_INCLUDES
+    "${MM_DIR}/include" "${MM_DIR}/include/PR" "${MM_DIR}" "${MM_DIR}/src"
+    "${MM_DIR}/2s2h" "${MM_DIR}/assets"
+    "${LUS_DIR}/include" "${LUS_DIR}/src"
+    "${DEPS}/threadpool/include" "${DEPS}/imgui" "${DEPS}/imgui/backends"
+    "${DEPS}/stb" "${LUS_BUILD}/_deps/stb"
+    "${PORTLIBS}/include" "${PORTLIBS}/include/SDL2")
 
-execute_process(
-    COMMAND git branch --show-current
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_BRANCH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+file(GLOB_RECURSE MM_C CONFIGURE_DEPENDS "${MM_DIR}/src/*.c")
+list(FILTER MM_C EXCLUDE REGEX "/src/(dmadata|elf_message|libultra)/")
+list(FILTER MM_C EXCLUDE REGEX "/src/boot/build.c$")
+add_library(mm_decomp STATIC ${MM_C} "${CMAKE_CURRENT_BINARY_DIR}/mm-build.c")
+target_include_directories(mm_decomp PRIVATE ${COMMON_INCLUDES})
+target_compile_options(mm_decomp PRIVATE -Os -w -fpermissive)
+foreach(hot z_actor z_collision_check z_bgcheck sys_matrix z_skelanime z_skin_matrix z_camera z_lights z_play z_room z_scene z_view)
+    if(EXISTS "${MM_DIR}/src/code/${hot}.c")
+        set_source_files_properties("${MM_DIR}/src/code/${hot}.c" PROPERTIES COMPILE_OPTIONS -O2)
+    endif()
+endforeach()
+
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(INSTALL_DOCS OFF CACHE BOOL "" FORCE)
+add_subdirectory(third_party/libogg EXCLUDE_FROM_ALL)
+include(cmake/AudioCodecs3DS.cmake)
+add_subdirectory(third_party/libvorbis EXCLUDE_FROM_ALL)
+set(PNG_SHARED OFF CACHE BOOL "" FORCE)
+set(PNG_STATIC ON CACHE BOOL "" FORCE)
+set(PNG_TESTS OFF CACHE BOOL "" FORCE)
+set(PNG_TOOLS OFF CACHE BOOL "" FORCE)
+set(PNG_EXECUTABLES OFF CACHE BOOL "" FORCE)
+set(PNG_ARM_NEON off CACHE STRING "" FORCE)
+set(ZLIB_LIBRARY "${PORTLIBS}/lib/libzlibstatic.a" CACHE FILEPATH "" FORCE)
+set(ZLIB_INCLUDE_DIR "${PORTLIBS}/include" CACHE PATH "" FORCE)
+add_subdirectory(third_party/libpng EXCLUDE_FROM_ALL)
+file(GLOB_RECURSE MM_CPP CONFIGURE_DEPENDS "${MM_DIR}/2s2h/*.cpp" "${MM_DIR}/2s2h/*.c")
+list(FILTER MM_CPP EXCLUDE REGEX "/2s2h/Extractor/")
+add_library(mm_enhancements STATIC ${MM_CPP})
+target_include_directories(mm_enhancements PRIVATE ${COMMON_INCLUDES}
+    "${CMAKE_CURRENT_SOURCE_DIR}/third_party/dr_libs")
+target_compile_options(mm_enhancements PRIVATE -Os -w -fpermissive)
+target_link_libraries(mm_enhancements PUBLIC vorbisfile png_static opusfile)
+target_precompile_headers(mm_enhancements PRIVATE
+    "$<$<COMPILE_LANGUAGE:CXX>:<libultraship/bridge/consolevariablebridge.h$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<ship/Context.h$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<ship/resource/ResourceManager.h$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<ship/window/Window.h$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<spdlog/spdlog.h$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<string$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<vector$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<map$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<unordered_map$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<filesystem$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<fstream$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<algorithm$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<functional$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:<variant$<ANGLE-R>>"
+    "$<$<COMPILE_LANGUAGE:CXX>:${MM_DIR}/2s2h/GameInteractor/GameInteractor.h>"
+    "$<$<COMPILE_LANGUAGE:CXX>:${MM_DIR}/include/variables.h>"
+    "$<$<COMPILE_LANGUAGE:CXX>:${MM_DIR}/include/functions.h>"
+    "$<$<COMPILE_LANGUAGE:CXX>:${MM_DIR}/include/macros.h>"
+    "$<$<COMPILE_LANGUAGE:CXX>:${MM_DIR}/include/z64.h>"
+    "$<$<COMPILE_LANGUAGE:C>:${MM_DIR}/include/ultra64.h>"
+    "$<$<COMPILE_LANGUAGE:C>:${MM_DIR}/include/global.h>"
+    "$<$<COMPILE_LANGUAGE:C>:${MM_DIR}/include/z64.h>"
+    "$<$<COMPILE_LANGUAGE:C>:${MM_DIR}/include/macros.h>"
+    "$<$<COMPILE_LANGUAGE:C>:${MM_DIR}/include/functions.h>"
+    "$<$<COMPILE_LANGUAGE:C>:${MM_DIR}/include/variables.h>"
 )
+set_source_files_properties("${MM_DIR}/2s2h/mixer.c" PROPERTIES COMPILE_OPTIONS -O2 SKIP_PRECOMPILE_HEADERS ON)
 
-# Github Actions checks out a detached HEAD, so check environment for the branch name instead
-if(NOT GIT_BRANCH)
-    if(DEFINED ENV{GITHUB_HEAD_REF} AND NOT "$ENV{GITHUB_HEAD_REF}" STREQUAL "")
-        set(GIT_BRANCH "$ENV{GITHUB_HEAD_REF}")
-    elseif(DEFINED ENV{GITHUB_REF_NAME} AND NOT "$ENV{GITHUB_REF_NAME}" STREQUAL "")
-        set(GIT_BRANCH "$ENV{GITHUB_REF_NAME}")
-    else()
-        set(GIT_BRANCH "detached")
+set(SHBIN "${CMAKE_CURRENT_BINARY_DIR}/fast3d_passthrough.shbin")
+set(SHADER_C "${CMAKE_CURRENT_BINARY_DIR}/fast3d_passthrough_shbin.c")
+add_custom_command(OUTPUT "${SHADER_C}"
+    COMMAND "${DEVKITPRO}/tools/bin/picasso" -o "${SHBIN}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/platform/3ds/shaders/fast3d_passthrough.v.pica"
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/bin2c.py"
+        "${SHBIN}" "${SHADER_C}" fast3d_passthrough_shbin
+    DEPENDS platform/3ds/shaders/fast3d_passthrough.v.pica scripts/bin2c.py VERBATIM)
+add_library(renderer_v7 STATIC platform/3ds/source/gfx_citro3d.cpp
+    platform/3ds/source/gfx_window_manager_3ds.cpp src/mk_gfx_factory.cpp "${SHADER_C}")
+target_include_directories(renderer_v7 PRIVATE ${COMMON_INCLUDES} src platform/3ds/include
+    "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_options(renderer_v7 PRIVATE -O3 -fomit-frame-pointer -fno-strict-aliasing -w)
+if(TWOSHIP3DS_EMULATOR_SAFE)
+    target_compile_definitions(renderer_v7 PRIVATE SOH3DS_EMULATOR_SAFE)
+endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/port3ds/runtime_3ds.cpp")
+    add_executable(2ship_3ds src/port3ds/runtime_3ds.cpp src/port3ds/backend_stubs.cpp src/port3ds/controls_3ds.cpp
+        src/compat3ds/logging_3ds.cpp src/compat3ds/sleep_3ds.cpp)
+    set_target_properties(2ship_3ds PROPERTIES OUTPUT_NAME "2ship-3ds.elf")
+    target_include_directories(2ship_3ds PRIVATE ${COMMON_INCLUDES} src src/compat3ds src/port3ds)
+    target_compile_options(2ship_3ds PRIVATE -Os -Wall -Wextra)
+    target_link_options(2ship_3ds PRIVATE -Wl,--wrap=__syscall_thread_create -Wl,--wrap=threadCreate
+        "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/2ship-3ds.map")
+    if(TWOSHIP3DS_MEMORY_WATCH)
+        target_sources(2ship_3ds PRIVATE src/port3ds/memory_watch.cpp)
+        set_property(SOURCE "${MM_DIR}/2s2h/mixer.c" APPEND PROPERTY
+            COMPILE_DEFINITIONS TWOSHIP3DS_MEMORY_WATCH=1)
+        set_property(SOURCE "${MM_DIR}/2s2h/mixer.c" APPEND PROPERTY COMPILE_OPTIONS -g)
+        set_property(SOURCE "${MM_DIR}/src/audio/lib/synthesis.c" APPEND PROPERTY
+            COMPILE_OPTIONS -g -O0 -fno-omit-frame-pointer)
+        set_property(SOURCE "${MM_DIR}/src/code/graph.c" APPEND PROPERTY
+            COMPILE_DEFINITIONS TWOSHIP3DS_MEMORY_WATCH=1)
+        target_link_options(2ship_3ds PRIVATE
+            -Wl,--wrap=memset -Wl,--wrap=memcpy -Wl,--wrap=memmove)
+        # Keep the diagnostic's own formatting allocation-free and out of libc.
+        set_source_files_properties(src/port3ds/memory_watch.cpp PROPERTIES COMPILE_OPTIONS
+            "-fno-builtin;-fno-tree-loop-distribute-patterns")
     endif()
+    target_link_libraries(2ship_3ds PRIVATE -Wl,--start-group
+        -Wl,--whole-archive mm_enhancements -Wl,--no-whole-archive
+        mm_decomp renderer_v7 "${LUS_BUILD}/src/libultraship.a"
+        "${LUS_BUILD}/libImGui.a" "${LUS_BUILD}/_deps/prism-build/libprism.a"
+        "${LUS_BUILD}/libstb.a" "${LUS_BUILD}/libmonocypher.a"
+        vorbisfile "${PORTLIBS}/lib/libzip.a" "${PORTLIBS}/lib/libspdlog.a"
+        "${PORTLIBS}/lib/libtinyxml2.a" "${PORTLIBS}/lib/libzlibstatic.a"
+        "${PORTLIBS}/lib/libSDL2.a" citro3d ctru m -Wl,--end-group)
+    add_custom_command(TARGET 2ship_3ds POST_BUILD
+        COMMAND "${DEVKITPRO}/tools/bin/3dsxtool" "$<TARGET_FILE:2ship_3ds>"
+            "${CMAKE_CURRENT_BINARY_DIR}/2ship-3ds.3dsx" VERBATIM)
 endif()
-
-set(CMAKE_PROJECT_GIT_BRANCH "${GIT_BRANCH}" CACHE STRING "Git branch" FORCE)
-
-execute_process(
-    COMMAND git rev-parse HEAD
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-# CI builds a PR from an ephemeral merge commit, so report the head commit GitHub shows instead
-if(DEFINED ENV{GITHUB_EVENT_PATH} AND EXISTS "$ENV{GITHUB_EVENT_PATH}")
-    file(READ "$ENV{GITHUB_EVENT_PATH}" GITHUB_EVENT_JSON)
-    string(JSON PR_HEAD_SHA ERROR_VARIABLE PR_HEAD_SHA_ERROR GET "${GITHUB_EVENT_JSON}" "pull_request" "head" "sha")
-    if(PR_HEAD_SHA AND PR_HEAD_SHA_ERROR STREQUAL "NOTFOUND")
-        set(GIT_COMMIT_HASH "${PR_HEAD_SHA}")
-    endif()
-endif()
-
-# Get only the first 7 characters of the hash
-string(SUBSTRING "${GIT_COMMIT_HASH}" 0 7 SHORT_COMMIT_HASH)
-
-set(CMAKE_PROJECT_GIT_COMMIT_HASH "${SHORT_COMMIT_HASH}" CACHE STRING "Git commit hash" FORCE)
-
-execute_process(
-    COMMAND git describe --tags --abbrev=0 --exact-match HEAD
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_TAG
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-if(NOT GIT_COMMIT_TAG)
-    set(GIT_COMMIT_TAG "" CACHE STRING "Git commit tag" FORCE)
-endif()
-
-set(CMAKE_PROJECT_GIT_COMMIT_TAG "${GIT_COMMIT_TAG}" CACHE STRING "Git commit tag" FORCE)
-
-set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT 2ship)
-
-add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
-add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    if (CMAKE_C_COMPILER_LAUNCHER MATCHES "ccache|sccache")
-        set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded)
-    endif()
-endif()
-
-if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux")
-    if(NOT DEFINED BUILD_CROWD_CONTROL)
-        set(BUILD_CROWD_CONTROL OFF)
-    endif()
-endif()
-
-# Enable the Gfx debugger in LUS to use libgfxd from ZAPDTR
-set(GFX_DEBUG_DISASSEMBLER ON)
-
-# Tell LUS we're using F3DEX_GBI_2 (in a way that doesn't break libgfxd)
-set(GBI_UCODE F3DEX_GBI_2)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
-
-# Enable MPQ and OTR support
-set(INCLUDE_MPQ_SUPPORT ON)
-
-################################################################################
-# Set target arch type if empty. Visual studio solution generator provides it.
-################################################################################
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    if(NOT CMAKE_VS_PLATFORM_NAME)
-        set(CMAKE_VS_PLATFORM_NAME "x64")
-    endif()
-    message("${CMAKE_VS_PLATFORM_NAME} architecture in use")
-
-    if(NOT ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64"
-        OR "${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32"))
-        message(FATAL_ERROR "${CMAKE_VS_PLATFORM_NAME} arch is not supported!")
-    endif()
-endif()
-
-################################################################################
-# VCPKG dependencies for Windows
-################################################################################
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-include(CMake/automate-vcpkg.cmake)
-
-if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-	set(VCPKG_TRIPLET x86-windows-static)
-	set(VCPKG_TARGET_TRIPLET x86-windows-static)
-elseif ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-	set(VCPKG_TRIPLET x64-windows-static)
-	set(VCPKG_TARGET_TRIPLET x64-windows-static)
-endif()
-
-vcpkg_bootstrap()
-vcpkg_install_packages(zlib bzip2 libzip libpng sdl2 sdl2-net glew glfw3 nlohmann-json tinyxml2 spdlog libogg libvorbis opus opusfile)
-endif()
-
-################################################################################
-# Global configuration types
-################################################################################
-if (CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
-    set(CMAKE_C_FLAGS_DEBUG "-g -ffast-math -DDEBUG")
-    set(CMAKE_CXX_FLAGS_DEBUG "-g -ffast-math -DDEBUG")
-    set(CMAKE_C_FLAGS_RELEASE "-O3 -ffast-math -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -DNDEBUG")
-elseif(MSVC)
-    # We need to remove RTC1 as it is not compatible with O2, which we set for some files in DEBUG
-    string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
-    string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-    set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
-else()
-    set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
-    set(CMAKE_OBJCXX_FLAGS_RELEASE "-O2 -DNDEBUG")
-endif()
-
-if(NOT CMAKE_BUILD_TYPE )
-    set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
-endif()
-
-################################################################################
-# Common utils
-################################################################################
-include(CMake/Utils.cmake)
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    get_linux_lsb_release_information()
-    message(STATUS "Linux ${LSB_RELEASE_ID_SHORT} ${LSB_RELEASE_VERSION_SHORT} ${LSB_RELEASE_CODENAME_SHORT}")
-else()
-    message(STATUS ${CMAKE_SYSTEM_NAME})
-endif()
-
-################################################################################
-# Additional Global Settings(add specific info there)
-################################################################################
-include(CMake/GlobalSettingsInclude.cmake OPTIONAL)
-
-################################################################################
-# Use solution folders feature
-################################################################################
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-################################################################################
-# Set CONTROLLERBUTTONS_T
-################################################################################
-add_compile_definitions(CONTROLLERBUTTONS_T=uint32_t)
-
-################################################################################
-# Sub-projects
-################################################################################
-add_subdirectory(libultraship ${CMAKE_BINARY_DIR}/libultraship)
-target_compile_definitions(libultraship PUBLIC INCLUDE_MPQ_SUPPORT)
-
-# LUS ships no PCH of its own and these headers dominate its build. Done here rather than in the
-# submodule, and PRIVATE, so nothing about its public interface changes.
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang|GNU|MSVC")
-    target_precompile_headers(libultraship PRIVATE
-        "$<$<COMPILE_LANGUAGE:CXX>:<ship/Context.h$<ANGLE-R>>"
-        "$<$<COMPILE_LANGUAGE:CXX>:<ship/resource/ResourceManager.h$<ANGLE-R>>"
-        "$<$<COMPILE_LANGUAGE:CXX>:<ship/window/Window.h$<ANGLE-R>>"
-        "$<$<COMPILE_LANGUAGE:CXX>:<spdlog/spdlog.h$<ANGLE-R>>"
-    )
-    # Clang replays a PCH's pending template instantiations in every consuming TU unless told to do
-    # the work up front. MSVC's PCH already behaves this way.
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
-        target_compile_options(libultraship PRIVATE
-            $<$<COMPILE_LANGUAGE:CXX>:-fpch-instantiate-templates>
-        )
-    endif()
-endif()
-
-add_subdirectory(ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
-add_subdirectory(OTRExporter)
-add_subdirectory(mm)
-
-set_property(TARGET 2ship PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
-set_property(TARGET 2ship PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/mm/linux/2s2h.desktop")
-set_property(TARGET 2ship PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/2s2hIcon.png")
-
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-install(FILES "${CMAKE_BINARY_DIR}/mm/2ship.o2r" DESTINATION . COMPONENT ship)
-install(TARGETS ZAPD DESTINATION ./assets/extractor COMPONENT extractor)
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/extractor/" DESTINATION ./assets/ COMPONENT extractor)
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/xml/" DESTINATION ./assets/xml COMPONENT extractor)
-endif()
-
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/extractor/" DESTINATION ./assets/ COMPONENT 2s2h)
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/xml/" DESTINATION ./assets/xml COMPONENT 2s2h)
-endif()
-
-find_package(Python3 COMPONENTS Interpreter)
-
-# Target to generate OTRs
-add_custom_target(
-    ExtractAssets
-    # CMake versions prior to 3.17 do not have the rm command, use remove instead for older versions
-    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f mm.zip 2ship.o2r
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --non-interactive --xml-root ../mm/assets/xml --custom-otr-file 2ship.o2r "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
-    COMMAND ${CMAKE_COMMAND} -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME} -DTARGET_DIR="$<TARGET_FILE_DIR:ZAPD>" -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DBINARY_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/copy-existing-otrs.cmake
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mm
-    COMMENT "Running asset extraction..."
-    DEPENDS ZAPD
-    BYPRODUCTS mm.o2r ${CMAKE_SOURCE_DIR}/mm.o2r ${CMAKE_SOURCE_DIR}/2ship.o2r
-)
-
-# Target to generate headers
-add_custom_target(
-    ExtractAssetHeaders
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --non-interactive --xml-root ../mm/assets/xml --gen-headers
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mm
-    COMMENT "Generating asset headers..."
-    DEPENDS ZAPD
-)
-
-# Target to generate only 2ship.o2r
-add_custom_target(
-    Generate2ShipOtr
-    # CMake versions prior to 3.17 do not have the rm command, use remove instead for older versions
-    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f 2ship.o2r
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --norom --custom-otr-file 2ship.o2r "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
-    COMMAND ${CMAKE_COMMAND} -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME} -DTARGET_DIR="$<TARGET_FILE_DIR:ZAPD>" -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DBINARY_DIR=${CMAKE_BINARY_DIR} -DONLY2SHIPOTR=On -P ${CMAKE_CURRENT_SOURCE_DIR}/CMake/copy-existing-otrs.cmake
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mm
-    COMMENT "Generating 2ship.o2r..."
-    DEPENDS ZAPD
-)
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-file(COPY ${CMAKE_SOURCE_DIR}/mm/linux/2s2hIcon.png DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-add_custom_target(CreateOSXIcons
-   COMMAND mkdir -p ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset
-   COMMAND sips -z 16 16     mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_16x16.png
-   COMMAND sips -z 32 32     mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_16x16@2x.png
-   COMMAND sips -z 32 32     mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_32x32.png
-   COMMAND sips -z 64 64     mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_32x32@2x.png
-   COMMAND sips -z 128 128   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_128x128.png
-   COMMAND sips -z 256 256   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_128x128@2x.png
-   COMMAND sips -z 256 256   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_256x256.png
-   COMMAND sips -z 512 512   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_256x256@2x.png
-   COMMAND sips -z 512 512   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_512x512.png
-   COMMAND cp                mm/macosx/2s2hIcon.png ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_512x512@2x.png
-   COMMAND iconutil -c icns -o ${CMAKE_BINARY_DIR}/macosx/2s2h.icns ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset
-   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-   COMMENT "Creating OSX icons ..."
-   )
-add_dependencies(2ship CreateOSXIcons)
-
-install(TARGETS ZAPD DESTINATION ${CMAKE_BINARY_DIR}/assets/extractor)
-
-set(PROGRAM_PERMISSIONS_EXECUTE OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
-
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/extractor/" DESTINATION ./assets/)
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/xml/" DESTINATION ./assets/xml)
-
-# Rename the installed soh binary to drop the macos suffix
-INSTALL(CODE "FILE(RENAME \${CMAKE_INSTALL_PREFIX}/../MacOS/2s2h-macos \${CMAKE_INSTALL_PREFIX}/../MacOS/2s2h)")
-install(CODE "
-   include(BundleUtilities)
-  fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/../MacOS/2s2h\" \"\" \"${dirs}\")
-   ")
-
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES "Windows|NintendoSwitch|CafeOS")
-install(FILES ${CMAKE_SOURCE_DIR}/README.md DESTINATION . COMPONENT 2s2h RENAME readme.txt )
-install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/mods\")" COMPONENT 2s2h)
-install(CODE "file(TOUCH \"\${CMAKE_INSTALL_PREFIX}/mods/custom_mod_files_go_here.txt\")" COMPONENT 2s2h)
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    set(CPACK_GENERATOR "External")
-elseif(CMAKE_SYSTEM_NAME MATCHES "Windows|NintendoSwitch|CafeOS")
-    set(CPACK_GENERATOR "ZIP")
-elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    set(CPACK_GENERATOR "Bundle")
-endif()
-
-set(CPACK_PROJECT_CONFIG_FILE ${CMAKE_SOURCE_DIR}/CMake/Packaging-2.cmake)
-include(CMake/Packaging.cmake)
+list(LENGTH MM_C MM_C_COUNT)
+list(LENGTH MM_CPP MM_CPP_COUNT)
+message(STATUS "2Ship ARM sources: ${MM_C_COUNT} decomp + ${MM_CPP_COUNT} enhancements")
