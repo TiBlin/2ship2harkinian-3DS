@@ -2,7 +2,7 @@
 
 Experimental **New Nintendo 3DS port of 2Ship2Harkinian**, the Majora's Mask PC port by Harbour Masters.
 
-> **Important:** this repository currently contains only a partial subset of the 3DS port.
+ **Important:** this repository currently contains only a partial subset of the 3DS port.
 
 ## Current status
 
