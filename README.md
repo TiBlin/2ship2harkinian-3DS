@@ -1,87 +1,282 @@
-[comment]: <> (Todo: Make Light Mode Image)
-[comment]: <> (Todo: Make Dark Mode Image)
+**2Ship2Harkinian 3DS**
 
-# 2 Ship 2 Harkinian
+Experimental **New Nintendo 3DS port of 2Ship2Harkinian**, the Majora’s Mask PC port by Harbour Masters\.
 
-## Discord
+**Important:** this repository currently contains only a partial subset of the 3DS port\.
 
-Official Discord: https://discord.com/invite/shipofharkinian
+**Current status**
 
-If you're having any trouble after reading through this `README`, feel free ask for help in the 2 Ship 2 Harkinian Support text channels. Please keep in mind that we do not condone piracy.
+2Ship2Harkinian has been successfully brought up on real **New Nintendo 3DS hardware**\.
 
-# Quick Start
+The current development build:
 
-2Ship does not include any copyrighted assets.  You are required to provide a supported copy of the game.
+compiles as \.3dsx and \.cia;
 
-### 1. Verify your ROM dump
-You can verify you have dumped a supported copy of the game by using the compatibility checker at https://2ship.equipment/. If you'd prefer to manually validate your ROM dump, you can cross-reference its `sha1` hash with the hashes [here](docs/supportedHashes.json).
+boots and runs on a real New Nintendo 3DS;
 
-### 2. Download 2 Ship 2 Harkinian from [Releases](https://github.com/HarbourMasters/2Ship2Harkinian/releases)
+reaches gameplay;
 
-### 3. Launch the Game!
-#### Windows
-* Extract the zip
-* Launch `2ship.exe`
+is still experimental and not considered a stable release\.
 
-#### Linux
-* Place your supported copy of the game in the same folder as the appimage.
-* Execute `2ship.appimage`. You may have to `chmod +x` the appimage via terminal.
+Known issues currently include:
 
-#### macOS
-* Run `2ship.app`.
-* When prompted, select your supported copy of the game.
+heavily distorted and intermittent audio;
 
-### 4. Play!
+missing or incorrectly reproduced sounds/voices;
 
-Congratulations, you are now sailing with 2 Ship 2 Harkinian! Have fun!
+incorrect pitch for some audio;
 
-# Configuration
+a crash observed around the first\-day / Clock Town progression;
 
-### Default keyboard configuration
-| N64 | A | B | Z | Start | Analog stick | C buttons | D-Pad |
-| - | - | - | - | - | - | - | - |
-| Keyboard | X | C | Z | Space | WASD | Arrow keys | TFGH |
+additional compatibility and stability issues are expected\.
 
-### Other shortcuts
-| Keys | Action |
-| - | - |
-| F1 | Toggle menubar |
-| F11 | Fullscreen |
-| Tab | Toggle Alternate assets |
-| Ctrl+R | Reset |
+This is therefore **work in progress**, not a finished or production\-ready port\.
 
-### Graphics Backends
-Currently, there are three rendering APIs supported: DirectX 11 (Windows), OpenGL (all platforms), and Metal (macOS). You can change which API to use in the `Settings` menu of the menubar, which requires a restart.
+**Why is only part of the source here?**
 
-If you're having an issue with crashing, you can also change the API manually in the `2ship2harkinian.json` file by finding the `"Backend": {` section and updating the backend ID and name. Be sure to use one of the valid values:
+The working 3DS port was developed using existing 3DS work from **soh\-3ds** as an important technical reference/base\.
 
-- `0` = DirectX 11 (default on Windows)
-- `1` = OpenGL
-- `2` = Metal (default on macOS)
+Some parts of the current working tree are derived from or closely related to that work\.
 
-# Custom Assets
+Permission to redistribute those portions as part of this project has been requested and is currently unresolved\.
 
-Custom assets are packed in `.o2r` or `.otr` files. To use custom assets, place them in the `mods` folder.
+For that reason, this repository intentionally publishes **only the subset of the 2Ship3DS work that was retained after comparison against soh\-3ds v0\.1\.0\-alpha\.3**\.
 
-If you're interested in creating and/or packing your own custom asset `.o2r`/`.otr` files, check out the following tools:
-* [**retro - OTR and O2R generator**](https://github.com/HarbourMasters64/retro)
-* [**fast64 - Blender plugin (Note that MM is not fully supported at this time)**](https://github.com/HarbourMasters/fast64)
+Code identified as identical to, copied from, or substantially overlapping with the compared soh\-3ds code has intentionally been excluded from this public subset\.
 
-# Development
+This means the repository **does not currently contain the complete source tree required to reproduce the working 3DS build**\.
 
-If you want to manually compile 2S2H, please consult the [building instructions](docs/BUILDING.md).
+The missing portions will not be published here unless their redistribution status is resolved appropriately\.
 
-# Nightly Builds
-If you want to playtest a continuous integration build, you can find them at the links below. Keep in mind that these are for playtesting only, and you will likely encounter bugs and possibly crashes. 
+**Important limitation of this separation**
 
-* [Windows](https://nightly.link/HarbourMasters/2ship2harkinian/workflows/main/develop/2ship-windows.zip)
-* [Linux](https://nightly.link/HarbourMasters/2ship2harkinian/workflows/main/develop/2ship-linux.zip)
-* [Mac](https://nightly.link/HarbourMasters/2ship2harkinian/workflows/main/develop/2ship-mac.zip)
+The comparison against soh\-3ds v0\.1\.0\-alpha\.3 is a conservative engineering comparison, **not a legal determination of authorship**\.
 
-<a href="https://github.com/Kenix3/libultraship/">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./docs/poweredbylus.darkmode.png">
-    <img alt="Powered by libultraship" src="./docs/poweredbylus.lightmode.png">
-  </picture>
-</a>
+A file being present in this repository means that it survived that comparison and was considered part of the 2Ship\-specific work being preserved publicly\. It does not, by itself, establish that every individual line in that file was independently authored\.
 
+Likewise, some original 2Ship3DS modifications may have been omitted because they existed inside files that also contained code derived from the reference project\.
+
+**Purpose of this repository**
+
+The immediate goal is to preserve and document the independently developed 2Ship3DS work while development continues\.
+
+Longer term, the project aims to provide a functional native New Nintendo 3DS port of 2Ship2Harkinian with:
+
+stable gameplay;
+
+proper 3DS input integration;
+
+functional audio;
+
+New 3DS\-specific rendering;
+
+\.3dsx and \.cia builds;
+
+hardware\-tested compatibility\.
+
+**Build status**
+
+**The source currently published here is intentionally incomplete and is not expected to build by itself\.**
+
+The internal development tree contains additional platform code required for the working hardware build, but those portions are not included in this public repository at this time\.
+
+Do not interpret build failures from this public subset as representing the state of the complete development version\.
+
+**Hardware**
+
+Development and testing are currently focused on:
+
+**New Nintendo 3DS / New Nintendo 3DS XL**
+
+The port should currently be considered **New 3DS\-specific**\. Compatibility with original Nintendo 3DS hardware is not claimed\.
+
+**Upstream projects and credits**
+
+This project exists because of substantial work done by other open\-source projects and contributors\.
+
+**Harbour Masters**
+
+**2Ship2Harkinian** is developed by Harbour Masters and its contributors\.
+
+2Ship2Harkinian provides the underlying Majora’s Mask PC\-port codebase on which this project is based\.
+
+This repository is an unofficial experimental 3DS port and is not presented as an official Harbour Masters release\.
+
+**999sian / soh\-3ds**
+
+The existing **soh\-3ds** project by **999sian** provided important prior work for running Ship of Harkinian on Nintendo 3DS hardware\.
+
+That work was used as a technical reference/base during development of this port\.
+
+Code derived from that project is intentionally **not included in the currently published subset** while redistribution permission remains unresolved\.
+
+Full credit for that work belongs to 999sian and the corresponding contributors\.
+
+**Ship of Harkinian / libultraship contributors**
+
+This project also builds upon the broader technical ecosystem created by the Ship of Harkinian, libultraship, and related Harbour Masters contributors\.
+
+Their work made this experiment substantially more feasible\.
+
+**Game assets**
+
+No copyrighted Majora’s Mask game assets or ROM are distributed by this repository\.
+
+Users are responsible for supplying any legally required game data themselves when applicable\.
+
+**Project maturity**
+
+This project should currently be treated as:
+
+**Experimental / pre\-alpha**
+
+A successful hardware boot does not imply full compatibility\.
+
+Expect crashes, missing functionality, incorrect behavior and significant unfinished platform work\.
+
+**Repository status**
+
+This README describes both:
+
+the **complete 2Ship3DS development project**, which has produced hardware\-booting builds; and
+
+the **restricted public source subset contained in this repository today**\.
+
+Those are deliberately not the same thing\.
+
+The repository may be expanded later if the redistribution status of the remaining 3DS platform code is resolved\.
+
+# 2Ship2Harkinian\-3DS
+
+Experimental **New Nintendo 3DS port of 2Ship2Harkinian**, the Majora’s Mask PC port by Harbour Masters\.
+
+> **Important:** this repository currently contains only a partial subset of the 3DS port.
+
+## Current status
+
+2Ship2Harkinian has been successfully brought up on real **New Nintendo 3DS hardware**\.
+
+The current development build:
+
+- compiles as `.3dsx` and `.cia`;
+- boots and runs on a real New Nintendo 3DS;
+- reaches gameplay;
+- is still experimental and not considered a stable release\.
+
+Known issues currently include:
+
+- heavily distorted and intermittent audio;
+- missing or incorrectly reproduced sounds/voices;
+- incorrect pitch for some audio;
+- a crash observed around the first\-day / Clock Town progression;
+- additional compatibility and stability issues are expected\.
+
+This is therefore **work in progress**, not a finished or production\-ready port\.
+
+## Why is only part of the source here?
+
+The working 3DS port was developed using existing 3DS work from **soh\-3ds** as an important technical reference/base\.
+
+Some parts of the current working tree are derived from or closely related to that work\.
+
+Permission to redistribute those portions as part of this project has been requested and is currently unresolved\.
+
+For that reason, this repository intentionally publishes **only the subset of the 2Ship3DS work that was retained after comparison against ****`soh-3ds v0.1.0-alpha.3`**\.
+
+Code identified as identical to, copied from, or substantially overlapping with the compared soh\-3ds code has intentionally been excluded from this public subset\.
+
+This means the repository **does not currently contain the complete source tree required to reproduce the working 3DS build**\.
+
+The missing portions will not be published here unless their redistribution status is resolved appropriately\.
+
+### Important limitation of this separation
+
+The comparison against `soh-3ds v0.1.0-alpha.3` is a conservative engineering comparison, **not a legal determination of authorship**\.
+
+A file being present in this repository means that it survived that comparison and was considered part of the 2Ship\-specific work being preserved publicly\. It does not, by itself, establish that every individual line in that file was independently authored\.
+
+Likewise, some original 2Ship3DS modifications may have been omitted because they existed inside files that also contained code derived from the reference project\.
+
+## Purpose of this repository
+
+The immediate goal is to preserve and document the independently developed 2Ship3DS work while development continues\.
+
+Longer term, the project aims to provide a functional native New Nintendo 3DS port of 2Ship2Harkinian with:
+
+- stable gameplay;
+- proper 3DS input integration;
+- functional audio;
+- New 3DS\-specific rendering;
+- `.3dsx` and `.cia` builds;
+- hardware\-tested compatibility\.
+
+## Build status
+
+**The source currently published here is intentionally incomplete and is not expected to build by itself\.**
+
+The internal development tree contains additional platform code required for the working hardware build, but those portions are not included in this public repository at this time\.
+
+Do not interpret build failures from this public subset as representing the state of the complete development version\.
+
+## Hardware
+
+Development and testing are currently focused on:
+
+**New Nintendo 3DS / New Nintendo 3DS XL**
+
+The port should currently be considered **New 3DS\-specific**\. Compatibility with original Nintendo 3DS hardware is not claimed\.
+
+## Upstream projects and credits
+
+This project exists because of substantial work done by other open\-source projects and contributors\.
+
+### Harbour Masters
+
+**2Ship2Harkinian** is developed by Harbour Masters and its contributors\.
+
+2Ship2Harkinian provides the underlying Majora’s Mask PC\-port codebase on which this project is based\.
+
+This repository is an unofficial experimental 3DS port and is not presented as an official Harbour Masters release\.
+
+### 999sian / soh\-3ds
+
+The existing **soh\-3ds** project by **999sian** provided important prior work for running Ship of Harkinian on Nintendo 3DS hardware\.
+
+That work was used as a technical reference/base during development of this port\.
+
+Code derived from that project is intentionally **not included in the currently published subset** while redistribution permission remains unresolved\.
+
+Full credit for that work belongs to 999sian and the corresponding contributors\.
+
+### Ship of Harkinian / libultraship contributors
+
+This project also builds upon the broader technical ecosystem created by the Ship of Harkinian, libultraship, and related Harbour Masters contributors\.
+
+Their work made this experiment substantially more feasible\.
+
+## Game assets
+
+No copyrighted Majora’s Mask game assets or ROM are distributed by this repository\.
+
+Users are responsible for supplying any legally required game data themselves when applicable\.
+
+## Project maturity
+
+This project should currently be treated as:
+
+**Experimental / pre\-alpha**
+
+A successful hardware boot does not imply full compatibility\.
+
+Expect crashes, missing functionality, incorrect behavior and significant unfinished platform work\.
+
+## Repository status
+
+This README describes both:
+
+1. the **complete 2Ship3DS development project**, which has produced hardware\-booting builds; and
+2. the **restricted public source subset contained in this repository today**\.
+
+Those are deliberately not the same thing\.
+
+The repository may be expanded later if the redistribution status of the remaining 3DS platform code is resolved\.
