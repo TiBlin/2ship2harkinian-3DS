@@ -36,7 +36,7 @@ Known issues currently include:
 - heavily distorted and intermittent audio;
 - missing or incorrectly reproduced sounds/voices;
 - incorrect pitch for some audio;
-- a crash observed around the first-day / Clock Town progression;
+- random crashes while doing Clock Town progression;
 - additional compatibility and stability issues are expected.
 
 This is therefore **work in progress**, not a finished or production-ready port.
