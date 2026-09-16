@@ -14,7 +14,23 @@ The current development build:
 - boots and runs on a real New Nintendo 3DS;
 - reaches gameplay;
 - is still experimental and not considered a stable release.
+- 
+## Hardware demonstration
 
+The current experimental 2Ship2Harkinian-3DS development build has been tested on real New Nintendo 3DS XL hardware.
+
+These images show the port running directly on real hardware during development:
+
+<p align="center">
+  <img src="docs/images/2ship3ds-clock-town.jpeg"
+       alt="2Ship2Harkinian running in Clock Town on a New Nintendo 3DS XL"
+       width="48%">
+  <img src="docs/images/2ship3ds-cutscene.jpeg"
+       alt="2Ship2Harkinian running a Majora's Mask cutscene on a New Nintendo 3DS XL"
+       width="48%">
+</p>
+
+> **Development status:** These photographs demonstrate that the current development build boots and executes Majora's Mask gameplay on real New Nintendo 3DS XL hardware. They do not imply full compatibility or stability. The port remains experimental and known issues are still being investigated.
 Known issues currently include:
 
 - heavily distorted and intermittent audio;
