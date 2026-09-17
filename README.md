@@ -35,8 +35,11 @@ These images show the port running directly on real hardware during development:
 Known issues currently include:
 
 FIXED - heavily distorted and intermittent audio; 
+
 FIXED - missing or incorrectly reproduced sounds/voices; 
-FIXED - incorrect pitch for some audio; FIXED
+
+FIXED - incorrect pitch for some audio; 
+
 - random crashes while doing Clock Town progression;
 - additional compatibility and stability issues are expected.
 
