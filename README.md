@@ -34,9 +34,9 @@ These images show the port running directly on real hardware during development:
 > **Development status:** These photographs demonstrate that the current development build boots and executes Majora's Mask gameplay on real New Nintendo 3DS XL hardware. They do not imply full compatibility or stability. The port remains experimental and known issues are still being investigated.
 Known issues currently include:
 
-- heavily distorted and intermittent audio;
-- missing or incorrectly reproduced sounds/voices;
-- incorrect pitch for some audio;
+FIXED - heavily distorted and intermittent audio; 
+FIXED - missing or incorrectly reproduced sounds/voices; 
+FIXED - incorrect pitch for some audio; FIXED
 - random crashes while doing Clock Town progression;
 - additional compatibility and stability issues are expected.
 
