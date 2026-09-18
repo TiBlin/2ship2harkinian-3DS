@@ -1,0 +1,62 @@
+{
+  "patch_id": "2SHIP3DS-V2-AUDIO-NOTE-ADDRESS-GATE-FIX",
+  "created_utc": "2026-09-16T08:15:01.185880+00:00",
+  "base_archive": "2SHIP3DS-CORRECTIF-V2-SOURCES(1).zip",
+  "base_archive_sha256": "1806cc31f4d7f881934fe2efeaad37fba1ee71c8d41d00409ea8ca898234f4c0",
+  "base_archive_files": 8873,
+  "unchanged_base_files": 8872,
+  "deleted_base_files": [],
+  "changed_base_files": [
+    {
+      "path": "third_party/2ship/mm/src/audio/lib/playback.c",
+      "sha256_before": "5d220233ab43f2d75831c81ce4ac7f05521579034f6d7676ab3a66838e48694a",
+      "sha256_after": "e462a5e0d6bb641e768f692c5c3f6da1ee306bdf6c5fb06b5ecb6605a24e0b18"
+    }
+  ],
+  "added_files": [
+    {
+      "path": "CORRECTIF-AUDIO-LIRE-MOI.md",
+      "size": 9052,
+      "sha256": "6a3e5b9164d1574c2576ad5dc1adf648e8689440b41781cb7442a121a6e63b92"
+    },
+    {
+      "path": "patches/mm-3ds-note-address-gate.patch",
+      "size": 1065,
+      "sha256": "c2465621e8153a24df012e659cde95528aa91806f441de98776b600639a52cc8"
+    },
+    {
+      "path": "tests/test_mm_note_address_gate.py",
+      "size": 9751,
+      "sha256": "8aac5d5124b1cdc2a7ee701a63d64e98fa625920b4cfba985d192a5c901425bc"
+    },
+    {
+      "path": "validation/audio-note-address-gate/PATCH_CONTRACT_CODEX_SPARK.txt",
+      "size": 10691,
+      "sha256": "95f7a0432f60d38712cdb8989e286e18cd1722d78d6848fc1897294c335a3815"
+    },
+    {
+      "path": "validation/audio-note-address-gate/results.json",
+      "size": 7992,
+      "sha256": "e2234a8990c685eb98888d77b0896ff6d67213ffaf4cc1e6f8e9c65cc35678ff"
+    },
+    {
+      "path": "validation/audio-note-address-gate/tests.txt",
+      "size": 5814,
+      "sha256": "21ef8c13dd2ced2a79ed60c1a27741e7c15d2335c5b432ddb06bb6b07e0f4522"
+    }
+  ],
+  "self_manifest_not_listed_in_added_files": true,
+  "input_source_manifest_semantics": "source-manifest.json is the preserved original V2 manifest. Override the changed file entry using changed_base_files; additions are listed here.",
+  "regression_test_origin": {
+    "archive": "2SHIP3DS-AUDIO-DIAGNOSTIC.zip",
+    "source_name": "test_note_address_gate.py",
+    "source_sha256": "172e49056b083bc3d9ab24fba807713343527024ea719e6913111d3ee5b42d77",
+    "adaptations": [
+      "Updated usage line and explanatory docstring",
+      "Added fixed Wii U and original/fixed default-platform control variants; all original assertions preserved"
+    ]
+  },
+  "validation": "validation/audio-note-address-gate/results.json",
+  "new_arm_binaries_built": false,
+  "hardware_verified": false
+}

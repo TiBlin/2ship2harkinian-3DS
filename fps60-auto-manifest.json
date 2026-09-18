@@ -1,0 +1,97 @@
+{
+  "variant": "AUDIO-FIX-v1.0.3-FPS60-AUTO",
+  "wizard_version": "1.0.3-FPS60-AUTO",
+  "base_archive": "2SHIP3DS-AUDIO-FIX-WIZARD-v1.0.2-FPS60.zip",
+  "base_archive_sha256": "1e27fa61200fd396af69a19e6d92380f447a0a3d0c1fbf3a993010be83fb2af9",
+  "render_target_fps": 60,
+  "adaptive_mode": "skip_overdue_optional_interpolated_frames",
+  "changes_target_fps_dynamically": false,
+  "default_enabled": true,
+  "cvar": "g3DS.FrameSkip",
+  "always_preserve_last_scheduled_draw_per_logic_tick": true,
+  "game_logic_or_audio_production_changed": false,
+  "max_debt_vblanks": 6,
+  "max_debt_policy_changed": false,
+  "full_native_build_run": false,
+  "hardware_test_run": false,
+  "windows_gui_run": false,
+  "modified_existing_files": [
+    {
+      "path": "2Ship3DS/Wizard-2Ship3DS.ps1",
+      "before_sha256": "96972c76713b99b83921c89ad018a011eaffa2cd5a23dfb2c0d2753936f98541",
+      "after_sha256": "9fe66f13e371acb35b8865433465dba3695025479affd7424fcc6b351a9e6004"
+    },
+    {
+      "path": "2Ship3DS/platform/3ds/source/gfx_citro3d.cpp",
+      "before_sha256": "a4f508cf2a0887d8c76a9f75dee96311a0e8df5ad81431c840f8b07ecc40fe9b",
+      "after_sha256": "57b80d9e0bf611e33578a73529c288999c9e3f5ef19bb638b8ca443bf04f09a6"
+    },
+    {
+      "path": "2Ship3DS/tests/test_mm_3ds_fps60.py",
+      "before_sha256": "0cd578ee3075112437d7f3ea92edbfbdba191cbc225bfb7032fb5c8dd184298b",
+      "after_sha256": "cd0b46982f8c1363430d3778beebbafd8e29191ab0683c2d15cc64509c691966"
+    },
+    {
+      "path": "2Ship3DS/third_party/2ship/mm/2s2h/BenGui/BenMenu.cpp",
+      "before_sha256": "513b8a65fa7f20847a22d6a6bbf6ae5da3955aab3df83544460a08b03b030318",
+      "after_sha256": "cc7d76f718a61b42dd343c3d6f7c2cde9cdd25547cb615e16d7993dc01b276b7"
+    },
+    {
+      "path": "2Ship3DS/third_party/2ship/mm/2s2h/BenPort.cpp",
+      "before_sha256": "8ada8f246e4bc0847ebd8da62975c8fdc1655c459b880338e6ab27a41d60abae",
+      "after_sha256": "76d8215ff1ac427bdc539ff5b6af80f516abc83f0fb2b0f6e268f7582a1b6329"
+    },
+    {
+      "path": "2Ship3DS/wizard/build_wizard.py",
+      "before_sha256": "25a7afb24ec6d962f6d3fa2d26319166e604aa5598f7eebe284e50f8794f528c",
+      "after_sha256": "a143de4958f8515fd03cc716ca0130a6c288e40ff7f6ca5fda08dbb2bded418a"
+    },
+    {
+      "path": "LIRE-MOI-FPS60.txt",
+      "before_sha256": "6c91f9d8cf0bcf42b6e050c8852a65cc3315bf2f02dc902d31d7884cc04f2d63",
+      "after_sha256": "cf406e3e1d0c556626adf0c9a9aa10eba955b7eb15ff22bb8fbb99cee53762ef"
+    }
+  ],
+  "unchanged_distributed_existing_files": 8895,
+  "not_distributed_binary_fonts": [
+    "2Ship3DS/third_party/2ship/mm/assets/custom/fonts/Fipps-Regular.otf",
+    "2Ship3DS/third_party/2ship/mm/assets/custom/fonts/Inconsolata-Regular.ttf",
+    "2Ship3DS/third_party/2ship/mm/assets/custom/fonts/Montserrat-Regular.ttf",
+    "2Ship3DS/third_party/2ship/mm/assets/custom/fonts/PressStart2P-Regular.ttf",
+    "2Ship3DS/third_party/build-deps/imgui/misc/fonts/Cousine-Regular.ttf",
+    "2Ship3DS/third_party/build-deps/imgui/misc/fonts/DroidSans.ttf",
+    "2Ship3DS/third_party/build-deps/imgui/misc/fonts/Karla-Regular.ttf",
+    "2Ship3DS/third_party/build-deps/imgui/misc/fonts/ProggyClean.ttf",
+    "2Ship3DS/third_party/build-deps/imgui/misc/fonts/ProggyTiny.ttf",
+    "2Ship3DS/third_party/build-deps/imgui/misc/fonts/Roboto-Medium.ttf"
+  ],
+  "excluded_files_deleted_by_patch": false,
+  "added_files": [
+    {
+      "path": "2Ship3DS/FPS60-AUTO-LIRE-MOI.md",
+      "sha256": "160589fd5b52e298d73a905829f86b99c946de19803d74903e9eecfca31ed343"
+    },
+    {
+      "path": "2Ship3DS/patches/mm-3ds-auto-frameskip.patch",
+      "sha256": "7835e13360e20e3b2f0198874b2b9ca6ad49d017f23d5b6b9765a97dcf0aae7e"
+    },
+    {
+      "path": "2Ship3DS/tests/test_mm_3ds_frameskip.py",
+      "sha256": "ad9bfc319ce7c2df20c2e71e0801fd0fe5a7c2b31c2e49874590b6492b6e2097"
+    },
+    {
+      "path": "2Ship3DS/validation/fps60-auto/summary.json",
+      "sha256": "916e49dba284af169b257fd380529c056a20ac771bcf9351a41e485ca68f9347"
+    },
+    {
+      "path": "2Ship3DS/validation/fps60-auto/tests.txt",
+      "sha256": "0da6c4ea6057ff9f932bd8b0f1f98995eb1e1ea28af5108afc4cbe76798e989a"
+    }
+  ],
+  "notes": [
+    "Existing o2r resource archives are reused; ROM/assets are not supplied.",
+    "Prior manifests/guides describe historical baselines, not this additive patch.",
+    "Audio and CMake-clock test scripts unchanged; every original FPS60 assertion retained.",
+    "Host test uses simulated LCD/GPU/synthesis, not measured device performance."
+  ]
+}
