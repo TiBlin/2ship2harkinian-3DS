@@ -1,0 +1,17 @@
+--- a/third_party/2ship/mm/src/audio/lib/playback.c
++++ b/third_party/2ship/mm/src/audio/lib/playback.c
+@@ -196,10 +196,10 @@
+         sampleState = &gAudioCtx.sampleStateList[gAudioCtx.sampleStateOffset + i];
+         playbackState = &note->playbackState;
+         if (playbackState->parentLayer != NO_LAYER) {
+-#ifndef __WIIU__
+-            // OTRTODO: This skips playback if the pointer is below where memory on the N64 normally would be.
+-            // This does not translate well to modern platforms and how they map memory.
+-            // Considering that this check is not present in OoT/SoH, we may be able to remove this altogether.
++#if !defined(__WIIU__) && !defined(__3DS__)
++            // The N64 address range is not a native pointer validity check: valid 3DS
++            // SequenceLayer objects can reside below this threshold. Keep the legacy
++            // heuristic on other platforms, but exclude native Wii U and 3DS layers.
+             if ((uintptr_t)playbackState->parentLayer < 0x7FFFFFFF) {
+                 continue;
+             }
