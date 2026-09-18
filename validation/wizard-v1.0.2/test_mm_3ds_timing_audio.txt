@@ -1,4 +1,0 @@
-$ /opt/pyvenv/bin/python tests/test_mm_3ds_timing_audio.py
-PASS: 24 FPS cases; null/native per-tick bounds, idle exclusion, blocking barrier, 32000 Hz cadence
-
-exit_code=0

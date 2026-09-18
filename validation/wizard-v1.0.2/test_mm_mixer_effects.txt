@@ -1,4 +1,0 @@
-$ /opt/pyvenv/bin/python tests/test_mm_mixer_effects.py
-PASS: 77 PCM gain vectors with whole-DMEM canaries; 5 MM no-op boundaries; legacy controls fail safely
-
-exit_code=0

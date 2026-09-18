@@ -1,5 +1,0 @@
-$ /opt/pyvenv/bin/python tests/test_mm_adpcm_boundaries.py
-PASS: desktop control reproduces V8 DMEM address61216/count3904
-PASS: 480 native ADPCM boundary cases; looping, oneshot, normal offsets fit DMEM
-
-exit_code=0
