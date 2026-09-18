@@ -1,0 +1,19 @@
+{
+  "file": "platform/3ds/cia/app.rsf",
+  "origin": "public_abi",
+  "category_hint": "D",
+  "decision": "retained-public-format-configuration",
+  "after_sha256": "7f56f2ccdb2037718b6442d5c8c635be32bbd938f5a442044c602433b50f71cf",
+  "before_sha256": "7f56f2ccdb2037718b6442d5c8c635be32bbd938f5a442044c602433b50f71cf",
+  "reference": "https://raw.githubusercontent.com/Steveice10/buildtools/master/3ds/template.rsf",
+  "reference_sha256": "76939ec8326f6335a22ae7525735526693964ab82db5eb42c58fd0fad4b86d9e",
+  "additional_reference": "https://github.com/3DSGuy/Project_CTR/blob/master/makerom/README.md",
+  "configuration_field_count": 137,
+  "fields_not_in_public_template": [
+    "act",
+    "nfc",
+    "qtm"
+  ],
+  "evidence": "Declarative makerom RSF using public format fields, SVC numbers, service names and module IDs; 134 of 137 mapping keys occur as active settings in the public buildtools template, while act/nfc/qtm occur there as commented module examples with matching IDs. Project choices are title/product ID, ROMFS path, SD flag, memory size, CPU speed, stack and selected service capabilities. Real package validation verifies TitleID, flags and sections.",
+  "limits": "This attributes the public format and template conventions, not a claim that the entire historical file was independently authored. Public identifiers and configuration settings are retained without claiming original SDK authorship."
+}

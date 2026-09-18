@@ -1,0 +1,125 @@
+{
+  "build": "blinky-fix-startup-08",
+  "whole_source_original": false,
+  "cleanroom_certified": false,
+  "previous_review_manifest_sha256": "ee36534008fb500c6eee884c432a44cb1a1a49dabb905b9a9cdcc2cfd02d54b3",
+  "hardware_feedback": {
+    "build": "blinky-performance-07",
+    "result": "Black screens at startup; fresh SD log records fatal exception.",
+    "fatal_message": "Blinky fatal: unordered_map::at",
+    "log_sequence": [
+      "Blinky runtime: independent port 07",
+      "resources accepted",
+      "Blinky3DS window 400x240",
+      "Blinky Citro3D initialized",
+      "Blinky fatal: unordered_map::at"
+    ],
+    "diagnosis": "The native backend value 4 remained available while its MM menu label was removed in 07; GUI menu initialization performs an at(4) lookup before hiding the menu.",
+    "audio_home_lid_confirmed": false
+  },
+  "hardware_validation_08": "Not yet performed; no console success or performance gain is asserted.",
+  "files": [
+    {
+      "file": "third_party/2ship/mm/2s2h/BenGui/MenuTypes.h",
+      "category": "C+D",
+      "previous_sha256": "276894ce935f8ee722007caf4c782458639735bf1c0e1deb1f259e6b25ee7de6",
+      "sha256": "66b85cce20518856e503232e53d21cad6042c998e67964ee194c7157bdbf1f0f",
+      "evidence": "Restore the public FAST3D_CITRO3D backend label under __3DS__. Menu initialization runs before the native menu is hidden and requires a label for every available backend. The official MM menu implementation and desktop entries remain attributed upstream.",
+      "upstream": {
+        "archive": "mm",
+        "file": "mm/2s2h/BenGui/MenuTypes.h",
+        "sha256": "276894ce935f8ee722007caf4c782458639735bf1c0e1deb1f259e6b25ee7de6",
+        "normalized_sha256": "276894ce935f8ee722007caf4c782458639735bf1c0e1deb1f259e6b25ee7de6"
+      },
+      "delta_sha256": "25d4fe491b068f8593919adc73c23c24d33a290d0a473439017504907a5e09e3"
+    },
+    {
+      "file": "tests/test_blinky_startup.py",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "b5a87bc3f6026b603d5be9bb7e3110fa9ae757f7d0c0f3e04dfb8cc730d08123",
+      "evidence": "Independently written startup regression compiles the actual backend map and Menu::UpdateWindowBackendObjects implementation with minimal Context/Window/Config collaborators. It checks the native backend and stale configuration, and recreates the 07 missing-label exception as a negative control. Extracted MM/LUS functions retain upstream attribution.",
+      "upstream": null,
+      "delta_sha256": null
+    },
+    {
+      "file": "src/blinky/native_runtime.cpp",
+      "category": "A",
+      "previous_sha256": "71fdd7263a9e2ef350535b7865d7f561005a73892acb236f6dfe06ab5a6f4969",
+      "sha256": "c09628f77342eb3a42ec66db2eef28ca1a7b475bbaaca054126276696ba5c368",
+      "evidence": "Only the startup log marker changes from independent port 07 to startup fix 08; the previously reviewed runtime, fatal shutdown and heap ownership implementation is preserved.",
+      "upstream": null,
+      "delta_sha256": null
+    },
+    {
+      "file": "src/blinky/native_input.cpp",
+      "category": "A",
+      "previous_sha256": "3b10d97b347846fef81debbaa815ff07572caed0d7aded53d5959a0e68ab3065",
+      "sha256": "5ff90866ec9d8ad0457def18c0368e2d17e92a7c5d599ab66e15d57aa10c81d3",
+      "evidence": "Only the lower-screen build marker changes from Blinky 07 to Blinky 08; the previously reviewed input/settings implementation is preserved.",
+      "upstream": null,
+      "delta_sha256": null
+    },
+    {
+      "file": "scripts/verify_port.py",
+      "category": "A",
+      "previous_sha256": "e3e48c21f42c0552eaf3d0e1168e5b38381c6abea513d616afded37978ae59db",
+      "sha256": "a8b0995762e2eb206d7cc32fac5eab83d5f10bafa1eab6a15b5faad68bed8558",
+      "evidence": "Register the startup regression in the maintained Blinky test group so verification supplies the host C++ compiler and propagates failures. Preserve the previously reviewed build verification driver.",
+      "upstream": null,
+      "delta_sha256": null
+    },
+    {
+      "file": "scripts/audit_blinky_provenance.py",
+      "category": "A",
+      "previous_sha256": "07db8fba46e15f9bb370b04d1e9f1654ec5432f009cc2f39819a450b7f01e939",
+      "sha256": "75a4bf89be41fb72d159481c4947cea6d41385065b7948e6b802b0fa4d74a2ad",
+      "evidence": "Read the current build and observed user feedback from the reviewed manifest, retaining all pinned-archive, source/delta SHA, stale-review and attribution checks. This allows the 07 startup regression to be recorded without rewriting historical 07 evidence.",
+      "upstream": null,
+      "delta_sha256": null
+    }
+  ],
+  "independent_review_of_other_restored_07_files": {
+    "third_party/2ship/mm/2s2h/BenGui/BenMenu.cpp": "Removed historical sliders and restored desktop widget registrations; callbacks/pre-functions are stored during startup and executed only during drawing. No missing backend map is created here.",
+    "third_party/2ship/mm/2s2h/BenGui/Menu.h": "allowPopout is used in DrawElement, outside the native Blinky drawing path; it does not guard menu initialization.",
+    "third_party/2ship/mm/src/code/z_actor.c": "Only redundant multiplications by 1.0f were removed from culling; no native startup guard or culling policy changed."
+  },
+  "unchanged_historical_review_documents": [
+    {
+      "file": "docs/provenance07/rsf-provenance.json",
+      "sha256": "f08d5953ed5e59e90b4da48181bda75e2b0a958d08381f5809534fb3cfe62375"
+    },
+    {
+      "file": "docs/provenance07/public-rsf-template.txt",
+      "sha256": "76939ec8326f6335a22ae7525735526693964ab82db5eb42c58fd0fad4b86d9e"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.json",
+      "sha256": "a60ee51c804af25b54dbfea3f41dc9daf44fa6e6cc124ebb6bda803af720a414"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.md",
+      "sha256": "c298e7f08b3495bd8f497c917da02d31a3999e18e4eacf9692e8a4a4e0e70e2d"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.json",
+      "sha256": "429d6b439288f7af20ce39282c8af623f3888dcada1d2e82f842a7031624a414"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.md",
+      "sha256": "62cb9dd34c2550e2f8565f720f33a3232bd7e2713804c165eb66f73b3c179ee5"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.json",
+      "sha256": "665bbbaea9e5ceb810ac56220a01fc26150c239a82c1a5b58c58496653b5b320"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.md",
+      "sha256": "3a3f4aebff56ade582d3dd3feb9e54dadc3c0453174b77f80089af05d064c545"
+    },
+    {
+      "file": "docs/provenance07/blinky-implementation-review.json",
+      "sha256": "bbbd0e7ee7a5cb5571164e3261346ca7e55f88be8a0bcbc70a3e75f1c70d3893"
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "build": "blinky-20fps-11",
+  "whole_source_original": false,
+  "cleanroom_certified": false,
+  "baseline_build": "blinky-fix-orientation-10",
+  "baseline_review_manifest_sha256": "0ee411a5fa6a1788a094ddd0fc256b035eb2647b2b7c481babcd191f124fb852",
+  "files": [
+    {
+      "file": "src/blinky/gfx_blinky_citro3d.cpp",
+      "category": "A",
+      "previous_sha256": "e068a8c530b635a3334c842ac3c91f2f062d4b1651e17a8836056317d9dad765",
+      "sha256": "7f376c7ec05d22d86099c3aee14e9261e057262f07f3096bf0d38c13592aee28",
+      "evidence": "Replace the30/60 quantization with a1..20 bound when calculating the presentation budget. The orientation, UV, color/depth storage and all rendering paths are unchanged from10.",
+      "change_from_10_sha256": "29ef746fbab3081e8d821a824ea4959d37073473ef9438c819f68ab75eacbdd6",
+      "newly_added": false
+    },
+    {
+      "file": "src/blinky/native_input.cpp",
+      "category": "A",
+      "previous_sha256": "877a8f12c052c2fa7107527fdb49f0acf21ee3b8ec77df309641c5d44878a7a0",
+      "sha256": "4cd9422db32dd0e9dfc2616d2b677e5d31f5ce4a7765c870a6f42695ab7a78ad",
+      "evidence": "Show the fixed20 FPS presentation cap and stop the30/60 toggle from overriding it. Other settings retain their behavior. Bump the HUD marker to11.",
+      "change_from_10_sha256": "dd6b6ed5274714d11d1f90d2efd4dbd2801c5c144d552f98fca42e64331b2e00",
+      "newly_added": false
+    },
+    {
+      "file": "src/blinky/native_runtime.cpp",
+      "category": "A",
+      "previous_sha256": "4b9caae98015fa68bed2bcda2976ccd522bc5509452221f052a3c9e821ca4d3b",
+      "sha256": "275340cbf08a7cd1bdb26a80d9d3b232ffa5796e819388bb61cbbcfe4b307aa5",
+      "evidence": "Change only the startup marker to fps cap11 (20 FPS).",
+      "change_from_10_sha256": "8271860d93f36abaaa5e6aedb70da6e3eef426a9295a0599ad7a74bdd97af7d6",
+      "newly_added": false
+    },
+    {
+      "file": "third_party/libultraship/src/fast/backends/gfx_blinky_3ds_window.cpp",
+      "category": "A",
+      "previous_sha256": "7f6cb3eaed56a42aac1cfc1fc901b1f23acb07fa5abb0a11e201f7a0a55f59fe",
+      "sha256": "04a21a7744492a606638aa467ef6c4653d9f3c34b7139cdd7f994d9617e8b3c8",
+      "evidence": "Initialize and default the independently written window presentation target to20; clamp higher requests to20 and preserve positive lower targets. The physical refresh-rate report remains60 Hz.",
+      "change_from_10_sha256": "e6d620f0f46502e3bb71062e0b026a22ceb7627d5efc895d3d59e882929e718f",
+      "newly_added": false
+    },
+    {
+      "file": "third_party/2ship/mm/2s2h/BenPort.cpp",
+      "category": "C+A",
+      "previous_sha256": "2e3606693254ecbf80f7ca46498221f80b39c65ae837a84b01c0df66bbb96f01",
+      "sha256": "725ae5f2c18f67be3ca21aebced9ef462023693766b0faa4663a6e365f84e864",
+      "evidence": "In the __3DS__ branch only, set the saved interpolation CVar to20 in memory and return20 from GetInterpolationFPS regardless of older30/60 or refresh-match settings. Preserve the official MM base, prior attributed changes, simulation and audio code.",
+      "change_from_10_sha256": "8ba1fc589ae91e7fc7121d932e0a5b36c31cdd4a33bb890007ce664cdf81c107",
+      "newly_added": false,
+      "upstream": {
+        "archive": "mm",
+        "file": "mm/2s2h/BenPort.cpp",
+        "sha256": "4af8d7f3a849977634e50762679ee39e7e801c5a775ce740a6e529f7c7fb7bd3",
+        "normalized_sha256": "4af8d7f3a849977634e50762679ee39e7e801c5a775ce740a6e529f7c7fb7bd3"
+      },
+      "delta_sha256": "0912c1bf8d56162d36d9f29c2fbb3ce2b1e100845fb40cb87fd8c58f3e5a3fbb",
+      "delta_components": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "file": "tests/blinky/window.cpp",
+      "category": "A",
+      "previous_sha256": "fe08cb72f0b2cbac74f60929aa9081ceaf2b0ead0a04b8f9dec5bd0c94f8fce9",
+      "sha256": "aa6d7cdb820a13cbe2e5ed390e6db83f5a30811414cb230079d36cf3755cb76b",
+      "evidence": "Update existing production-backend expectations for startup20, capped20/30/60/999 and nonpositive requests; retain the lower10 target case and all lifecycle/ownership scenarios.",
+      "change_from_10_sha256": "02c6aa11b321a4148611ae21d0f7e84f47d622f58fdbb05d3df79927b7ed536a",
+      "newly_added": false
+    },
+    {
+      "file": "tests/test_mm_3ds_timing_audio.py",
+      "category": "D",
+      "previous_sha256": "2bdd75fdcfbc2d8e3cb2bd6223f1ebc141d517f7cb1b64dd5dfb54fcabaf9455",
+      "sha256": "79d07d51cfca3f3f8e5a25c4a0bf7308712cb67493158a5e18abce0b9d060424",
+      "evidence": "Adjust existing extracted-production FPS cases to expect20 for every saved request and refresh-match setting. Preserve all audio sample arithmetic, idle exclusion, per-tick bounds and blocking-barrier tests, with the existing D attribution.",
+      "change_from_10_sha256": "469056f33f60d37ed067ed70184cac8794341c314f0eddaa98e5a44c6f45b3d5",
+      "newly_added": false
+    }
+  ],
+  "validation_11": {
+    "hardware_tested": false,
+    "fps_cap": 20,
+    "host_regression_programs_passed": 20,
+    "existing24_fps_and_audio_cases_passed": true,
+    "window_cap_and_lifecycle_passed": true,
+    "preserved_orientation_checks": 5537,
+    "reports": [
+      {
+        "file": "verify-port.log",
+        "sha256": "78f8d8d2dc66b71a5b599be0488fe3ccf153d3787596d7b06583cb126060e8a1"
+      },
+      {
+        "file": "native-symbols-check.json",
+        "sha256": "9e484203bf32847614f3a1b5d4ddb67c96c854458bd1e70d10e476855124b2d7"
+      }
+    ]
+  },
+  "hardware_tested": false,
+  "user_request": "Restore the native FPS cap to 20.",
+  "no_external_implementation_imported": true,
+  "behavior": "MM interpolation targets20; window initialization/default/max20; renderer respects20; lower menu displays the fixed cap. Simulation/audio cadence is unchanged.",
+  "historical_proofs_preserved": [
+    {
+      "file": "docs/provenance07/rsf-provenance.json",
+      "sha256": "f08d5953ed5e59e90b4da48181bda75e2b0a958d08381f5809534fb3cfe62375"
+    },
+    {
+      "file": "docs/provenance07/public-rsf-template.txt",
+      "sha256": "76939ec8326f6335a22ae7525735526693964ab82db5eb42c58fd0fad4b86d9e"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.json",
+      "sha256": "a60ee51c804af25b54dbfea3f41dc9daf44fa6e6cc124ebb6bda803af720a414"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.md",
+      "sha256": "c298e7f08b3495bd8f497c917da02d31a3999e18e4eacf9692e8a4a4e0e70e2d"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.json",
+      "sha256": "429d6b439288f7af20ce39282c8af623f3888dcada1d2e82f842a7031624a414"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.md",
+      "sha256": "62cb9dd34c2550e2f8565f720f33a3232bd7e2713804c165eb66f73b3c179ee5"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.json",
+      "sha256": "665bbbaea9e5ceb810ac56220a01fc26150c239a82c1a5b58c58496653b5b320"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.md",
+      "sha256": "3a3f4aebff56ade582d3dd3feb9e54dadc3c0453174b77f80089af05d064c545"
+    },
+    {
+      "file": "docs/provenance07/blinky-implementation-review.json",
+      "sha256": "bbbd0e7ee7a5cb5571164e3261346ca7e55f88be8a0bcbc70a3e75f1c70d3893"
+    },
+    {
+      "file": "docs/provenance08/review.json",
+      "sha256": "8df4e9317ecc95c525d4b1edeab360c0d45174e6ced7ee2eeab633999200091c"
+    },
+    {
+      "file": "docs/provenance09/review.json",
+      "sha256": "2a4da948de6359fac1f5db8fa4a01187949e58cb46f1caf7029eee434b9c024c"
+    },
+    {
+      "file": "docs/provenance10/review.json",
+      "sha256": "7da5ef1e9d11ee4471d06bd4ee2035eed39efba6078915b80cb37f1b9d8f24fb"
+    }
+  ]
+}

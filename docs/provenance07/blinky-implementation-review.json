@@ -1,0 +1,288 @@
+{
+  "baseline_source": "blinky-performance-06/sources-completes.zip",
+  "baseline_sha256": "6188d065e548854c79f759a06ad71dbb38d4abacf2a29e8dab43cc144bff2bc7",
+  "method": "Prior 06 authored implementation reviews preserved only for exact bytes; all changed files individually reviewed in 07.",
+  "legal_cleanroom_certification": false,
+  "files": [
+    {
+      "file": "scripts/audit_blinky_provenance.py",
+      "previous_sha256": "ff7178574bf9228ae3c3c1eebcbb438f5f95c10914172494365a7ad43f846a32",
+      "sha256": "07db8fba46e15f9bb370b04d1e9f1654ec5432f009cc2f39819a450b7f01e939",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Independently rewritten strict audit: pinned archives, actual upstream/final SHA checks, exact reviewed delta, stale review rejection, retired file checks, bounded authorship claims."
+    },
+    {
+      "file": "scripts/bin2c.py",
+      "previous_sha256": "42cda5e76022c81d43e0e525576b65add3c7d06d1add5cdcf944dcc2cb625746",
+      "sha256": "42cda5e76022c81d43e0e525576b65add3c7d06d1add5cdcf944dcc2cb625746",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "src/blinky/gfx_blinky_citro3d.cpp",
+      "previous_sha256": "3ab73eb54b3fdcf1a67894291beca918194133189bd184bc06423b2b4c0f9844",
+      "sha256": "75deef122e0fc7e374df19581ebfaeaf9606ac36bb7d9161700f757f3e35c870",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Blinky renderer preserved and independently extended: homogeneous UV boundary partition, two-texture/fog scheduling, ordered GPU/CPU batches and alpha cutout with separate alpha/depth-safe passes. Reviewed against public Citro3D texture/effect/queue APIs and official LUS shader formulas; validated by semantic raster comparison."
+    },
+    {
+      "file": "src/blinky/gfx_blinky_citro3d.h",
+      "previous_sha256": "d068c7d90901121bbe388786b31402164def4916569c4fa5530a1c229cde59f1",
+      "sha256": "d068c7d90901121bbe388786b31402164def4916569c4fa5530a1c229cde59f1",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "src/blinky/input_core.h",
+      "previous_sha256": "e6ab7d2628e4172fb4ae27d91a282b7352df1ea103c39c35f8993d9d2eed7b16",
+      "sha256": "e6ab7d2628e4172fb4ae27d91a282b7352df1ea103c39c35f8993d9d2eed7b16",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "src/blinky/native_input.cpp",
+      "previous_sha256": "aae9ba68a2678f561696354f460f5b1c7a5220113a606f3272e423b4cfa47f58",
+      "sha256": "3b10d97b347846fef81debbaa815ff07572caed0d7aded53d5959a0e68ab3065",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Existing Blinky HID/settings implementation; reviewed 07 difference is the displayed version number only."
+    },
+    {
+      "file": "src/blinky/native_runtime.cpp",
+      "previous_sha256": "f138f0846f3b88dd9641c60aa1974c094a4ccbc90042b33ea3e28d67fbc784e1",
+      "sha256": "71fdd7263a9e2ef350535b7865d7f561005a73892acb236f6dfe06ab5a6f4969",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Existing Blinky crash28/lifecycle runtime; 07 adds a BlinkyAbortProcess bridge to its established kernel-exit Fatal path and updates the build marker. SDK-owned heaps and fatal thread shutdown ordering preserved."
+    },
+    {
+      "file": "src/blinky/passthrough.v.pica",
+      "previous_sha256": "b3ce366c51cfb8a4f49172c70719461597d570840156463d3195411d3a76dedc",
+      "sha256": "289b4f77c01b00071cb4aa3655bad81a702315d28447c107305f82bbf2558253",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Blinky pass-through shader; independently added TEXCOORD2 transport follows public PICA/libctru shader attribute semantics for the fog texture."
+    },
+    {
+      "file": "src/blinky/render_core.h",
+      "previous_sha256": "3b2a39821e5f39894a4baa4fe3f5d4bd291514dc8bec3fcbc2ab338346ccf53b",
+      "sha256": "3b2a39821e5f39894a4baa4fe3f5d4bd291514dc8bec3fcbc2ab338346ccf53b",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "src/blinky/smoke.cpp",
+      "previous_sha256": "90d66b1f53dd22555ed39ae9e201b95814f1e570b5aa7a6a720aa12e96d6ab4d",
+      "sha256": "90d66b1f53dd22555ed39ae9e201b95814f1e570b5aa7a6a720aa12e96d6ab4d",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/3ds.h",
+      "previous_sha256": "5619c37adfc543a8f67adee418f5ad9770316929954d960f727b7566326b2a52",
+      "sha256": "5619c37adfc543a8f67adee418f5ad9770316929954d960f727b7566326b2a52",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/archives/index.cpp",
+      "previous_sha256": "e3ba12fc8af4c937c9cb715a092f82879adbc5a0fcc51bfc877c0bb3b6ed7bf3",
+      "sha256": "e3ba12fc8af4c937c9cb715a092f82879adbc5a0fcc51bfc877c0bb3b6ed7bf3",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/archives/ship/resource/archive/O2rArchive.h",
+      "previous_sha256": "38ad4deece0dc4af8fea554be4a4fa5cad4feeedd5a93000bc880f213c4b4495",
+      "sha256": "38ad4deece0dc4af8fea554be4a4fa5cad4feeedd5a93000bc880f213c4b4495",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/archives/zip.cpp",
+      "previous_sha256": "03908e3d731ee994bbc6bd052bca645681c4f725a51ac3f691be2e68a57671ee",
+      "sha256": "03908e3d731ee994bbc6bd052bca645681c4f725a51ac3f691be2e68a57671ee",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/audio.cpp",
+      "previous_sha256": "4cb1bfb1ba64b75c69cbb9628a152ba1f245f1814cf9f07ea68ebdce8a853b62",
+      "sha256": "4cb1bfb1ba64b75c69cbb9628a152ba1f245f1814cf9f07ea68ebdce8a853b62",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/audio_regressions.cpp",
+      "previous_sha256": "8663559742e5633225951569ce65c12b99a0ed143c056250827f890800458715",
+      "sha256": "8663559742e5633225951569ce65c12b99a0ed143c056250827f890800458715",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/graphics/3ds.h",
+      "previous_sha256": "6d5d2b71426fd3b9734b9006534ccb033d4265f07d32e414e93df60c27ba79f6",
+      "sha256": "6d5d2b71426fd3b9734b9006534ccb033d4265f07d32e414e93df60c27ba79f6",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/graphics/citro3d.h",
+      "previous_sha256": "c6c468d86d42cdab58364e2f971bae44685922037630be2f7605e54e0e34e15c",
+      "sha256": "133a534db91773b9eed4cf9d943e8eae82e7d07281ecccd88d121258e40f6a8f",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Blinky host GPU model; implements public Citro3D test interfaces with independently modeled texture, fog, alpha-test, logic-op, color-mask and depth state to validate the production renderer."
+    },
+    {
+      "file": "tests/blinky/graphics/renderer.cpp",
+      "previous_sha256": "34cda78ec23a2d027e1868ac112aae88f2281243cc46242dd7d1927c703bfb25",
+      "sha256": "8e8df68881659d5ba6ff4e5abd524abf770352cf30e074d81736f6dcaac257a0",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Blinky regression harness; independently specified textured gameplay, clamp/padding, fog, alpha-cutout and depth interactions are compared with the established CPU reference, including batch/order assertions."
+    },
+    {
+      "file": "tests/blinky/lifecycle.cpp",
+      "previous_sha256": "86b16ddeb8e2b6aef5ad65ec9ca95c229bbd37bafe8bfd04aeaef7031a7acfa9",
+      "sha256": "86b16ddeb8e2b6aef5ad65ec9ca95c229bbd37bafe8bfd04aeaef7031a7acfa9",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/render_math.cpp",
+      "previous_sha256": "8de7a747d7c1e810763e96a387c493bc621628123c4d36b9bbdf1182cb630067",
+      "sha256": "8de7a747d7c1e810763e96a387c493bc621628123c4d36b9bbdf1182cb630067",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/ship/audio/AudioPlayer.h",
+      "previous_sha256": "352a5ffd20cbf3df8edcb1e8bde908f4244a7a8aca06dc320206163073a300fe",
+      "sha256": "352a5ffd20cbf3df8edcb1e8bde908f4244a7a8aca06dc320206163073a300fe",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/ship/window/Window.h",
+      "previous_sha256": "7862018eb495f966e2ee604bcddaccfc46cc24f1159ccb30df968ef10b30f16e",
+      "sha256": "7862018eb495f966e2ee604bcddaccfc46cc24f1159ccb30df968ef10b30f16e",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/blinky/window.cpp",
+      "previous_sha256": "fe08cb72f0b2cbac74f60929aa9081ceaf2b0ead0a04b8f9dec5bd0c94f8fce9",
+      "sha256": "fe08cb72f0b2cbac74f60929aa9081ceaf2b0ead0a04b8f9dec5bd0c94f8fce9",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/test_blinky_archives.py",
+      "previous_sha256": "108a21b2ed55202c2883d4f5bdd9686d800ecf30fac20a9c60ec49047f658c54",
+      "sha256": "108a21b2ed55202c2883d4f5bdd9686d800ecf30fac20a9c60ec49047f658c54",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/test_blinky_backends.py",
+      "previous_sha256": "dc3a2ed97a356034f29be0418a0c573c4f69221cd3ddbd88177fa7e887670b80",
+      "sha256": "dc3a2ed97a356034f29be0418a0c573c4f69221cd3ddbd88177fa7e887670b80",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/test_blinky_crash28.py",
+      "previous_sha256": "cc54323268c04c4863777d56e8676977c4f0d210543500deb7badb213a4f8f1b",
+      "sha256": "cc54323268c04c4863777d56e8676977c4f0d210543500deb7badb213a4f8f1b",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/test_blinky_pad.py",
+      "previous_sha256": "1372ca5cc469df18efbcf680bd4260adde775979506d7a58adc12a255b0f4028",
+      "sha256": "1372ca5cc469df18efbcf680bd4260adde775979506d7a58adc12a255b0f4028",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/test_blinky_render_math.py",
+      "previous_sha256": "851d9a95b292b7bdada712d4d89ab2ea57d87ef75d362d304943de8d5cc582ba",
+      "sha256": "851d9a95b292b7bdada712d4d89ab2ea57d87ef75d362d304943de8d5cc582ba",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/test_blinky_renderer.py",
+      "previous_sha256": "be6c33b8e9c4e89f137aae095ac85d0f20f16545cde8031f3f9dbb4e78c8e5b4",
+      "sha256": "be6c33b8e9c4e89f137aae095ac85d0f20f16545cde8031f3f9dbb4e78c8e5b4",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "tests/test_mm_control_merge.py",
+      "previous_sha256": "1372ca5cc469df18efbcf680bd4260adde775979506d7a58adc12a255b0f4028",
+      "sha256": "1372ca5cc469df18efbcf680bd4260adde775979506d7a58adc12a255b0f4028",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/include/fast/backends/gfx_blinky_3ds_window.h",
+      "previous_sha256": "8876c001fe8a47a949db5f9307377218ec4845fa7a9115dfe5340e1886a49c22",
+      "sha256": "8876c001fe8a47a949db5f9307377218ec4845fa7a9115dfe5340e1886a49c22",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/include/ship/audio/BlinkyNdspAudioPlayer.h",
+      "previous_sha256": "db4103085dd8e0119207fe248eb0d0a4790fe343844d4fb90d97b0305e7ca5ee",
+      "sha256": "db4103085dd8e0119207fe248eb0d0a4790fe343844d4fb90d97b0305e7ca5ee",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/include/ship/port/3ds/BlinkyInput.h",
+      "previous_sha256": "f430b3e08317ae1e0b529d643a829ca7cf2c54b42eb58e73d7e5ffff203ef127",
+      "sha256": "f430b3e08317ae1e0b529d643a829ca7cf2c54b42eb58e73d7e5ffff203ef127",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/include/ship/port/3ds/BlinkyLifecycle.h",
+      "previous_sha256": "f5b4b050f92b8867690c768e436d7af65f9d66b378af34c6b6dfeb9617c36d4a",
+      "sha256": "f5b4b050f92b8867690c768e436d7af65f9d66b378af34c6b6dfeb9617c36d4a",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/src/fast/BlinkyLusIntegration.cpp",
+      "previous_sha256": "40bc4758734ceb9fad45c20f35a3a85e6874a0e4649feab9f4392620b1b56df3",
+      "sha256": "40bc4758734ceb9fad45c20f35a3a85e6874a0e4649feab9f4392620b1b56df3",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/src/fast/backends/gfx_blinky_3ds_window.cpp",
+      "previous_sha256": "7f6cb3eaed56a42aac1cfc1fc901b1f23acb07fa5abb0a11e201f7a0a55f59fe",
+      "sha256": "7f6cb3eaed56a42aac1cfc1fc901b1f23acb07fa5abb0a11e201f7a0a55f59fe",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/src/ship/audio/BlinkyNdspAudioPlayer.cpp",
+      "previous_sha256": "ae1857629a93e4f2c148dadd6f8fb1e28b3fbab178055b3d5537474ff3747990",
+      "sha256": "ae1857629a93e4f2c148dadd6f8fb1e28b3fbab178055b3d5537474ff3747990",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/src/ship/port/3ds/BlinkyLifecycle.cpp",
+      "previous_sha256": "6fd5b65605fbc6ee746141aef09d9e51aa814856f097dbd315aec9b169377aa2",
+      "sha256": "6fd5b65605fbc6ee746141aef09d9e51aa814856f097dbd315aec9b169377aa2",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    },
+    {
+      "file": "third_party/libultraship/src/ship/resource/archive/BlinkyO2rArchive.cpp",
+      "previous_sha256": "3c9077983950b81f6f2c667a8a166495d15b373fc8bd22af89f360f930134dea",
+      "sha256": "3c9077983950b81f6f2c667a8a166495d15b373fc8bd22af89f360f930134dea",
+      "previous_evidence": "new implementation in this migration; public API contracts recorded in provenance doc",
+      "final_evidence": "Preserved Blinky implementation/test fixture from migration 06; exact bytes match its recorded authored-source review. Public SDK/LUS interfaces retain their attribution; file identity alone is not an authorship inference."
+    }
+  ]
+}

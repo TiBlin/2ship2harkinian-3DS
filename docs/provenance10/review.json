@@ -1,0 +1,203 @@
+{
+  "build": "blinky-fix-orientation-10",
+  "whole_source_original": false,
+  "cleanroom_certified": false,
+  "baseline_build": "blinky-fix-crash-09",
+  "baseline_review_manifest_sha256": "6a93c4b5df4fb2c786fd8d36b93ad4d0e0f35de306a76daaae25490af5166097",
+  "files": [
+    {
+      "file": "src/blinky/gfx_blinky_citro3d.cpp",
+      "category": "A",
+      "previous_sha256": "75deef122e0fc7e374df19581ebfaeaf9606ac36bb7d9161700f757f3e35c870",
+      "sha256": "e068a8c530b635a3334c842ac3c91f2f062d4b1651e17a8836056317d9dad765",
+      "evidence": "Map Snapshot color/depth rows using allocatedHeight-1-y, match ordinary packed UVs to the existing reversed upload and native sampler, present with native rotation (Y,-X), expose active invertY, and snapshot only actually sampled framebuffer units including masks/replacements. Existing MM/LUS contracts and attribution remain unchanged; public coordinate contracts are consulted without implementation import.",
+      "change_from_09_sha256": "3a6ffb9eb81e93af03352c91113e5c794b633dbedbc1451babdb9af762dafa63",
+      "newly_added": false
+    },
+    {
+      "file": "src/blinky/native_input.cpp",
+      "category": "A",
+      "previous_sha256": "9d8634051805a450b21c2dd87807b5d94cd1e5bba31e444c1e6a60bb39444ff8",
+      "sha256": "877a8f12c052c2fa7107527fdb49f0acf21ee3b8ec77df309641c5d44878a7a0",
+      "evidence": "Only change the lower-screen diagnostic version from Blinky09 to Blinky10.",
+      "change_from_09_sha256": "43af8f8b507578c8c4810da0e9824bf4f80387c379f301229352750a1c9929db",
+      "newly_added": false
+    },
+    {
+      "file": "src/blinky/native_runtime.cpp",
+      "category": "A",
+      "previous_sha256": "69228086310a4a434a0279232083569f3a8ef53ddcb259ac9d3cd4a9179b5c31",
+      "sha256": "4b9caae98015fa68bed2bcda2976ccd522bc5509452221f052a3c9e821ca4d3b",
+      "evidence": "Only change the startup marker from startup fix09 to orientation fix10.",
+      "change_from_09_sha256": "cd9b8cc322b55bf200274f7a58aa803bc7dc9fb839bc13bcb3f3bd68a46eb275",
+      "newly_added": false
+    },
+    {
+      "file": "tests/blinky/graphics/citro3d.h",
+      "category": "A",
+      "previous_sha256": "133a534db91773b9eed4cf9d943e8eae82e7d07281ecccd88d121258e40f6a8f",
+      "sha256": "3776f169237e9de33586495b83920bb9dbae1767035fc7c04c9dd6a939c0518e",
+      "evidence": "Extend the existing independent host collaborators with captured render target, viewport and output flip flags, and an optional bounded raster callback. Preserve resource ownership/fence checks. This remains a collaborator, not a complete hardware emulator.",
+      "change_from_09_sha256": "002e33c89b28d964c4ae52c1b81348020c72c61eb6cf39ae0f5377766863946c",
+      "newly_added": false
+    },
+    {
+      "file": "tests/blinky/graphics/renderer.cpp",
+      "category": "A",
+      "previous_sha256": "8e8df68881659d5ba6ff4e5abd524abf770352cf30e074d81736f6dcaac257a0",
+      "sha256": "7bf04f59a40106db4f989058697e617a6cc06dd86b177bb879ae05acdf5fe1cb",
+      "evidence": "Invoke asymmetric orientation and unused-framebuffer regressions. Correct the older packed-V and LCD assertions according to the independently checked public coordinate contract; retain all existing combiner, lifetime, blending and depth tests.",
+      "change_from_09_sha256": "8e075c9213767a9966844a243b2cb9e136a2a19f0a70307cd7f2ad99d7f0b927",
+      "newly_added": false
+    },
+    {
+      "file": "tests/blinky/graphics/orientation.inc",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "ab4faea0fd8d290717065f3be56720d473cd97064b9efc94a2f2f35c6e25efd1",
+      "evidence": "New independently written bounded opaque-triangle/nearest-texture test with four unequal color regions, 13x9 logical and16x16 allocated dimensions, raw color/depth sentinels, CPU/GPU comparison, target inversion, cross-convention copies and LCD mapping. Its address/rotation expectations come from the public hardware contract; no external implementation body imported.",
+      "change_from_09_sha256": "f8e939a529e58887462a30b2195d25d91cfda92cc47b10703021893729b35f4f",
+      "newly_added": true
+    },
+    {
+      "file": "tests/blinky/graphics/unused_framebuffer.inc",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "89bb511ffe1e5834b36c8e89323c4065a9e5e8877876183db93ae2a8adf36700",
+      "evidence": "New independently written regression drives the production renderer through a nonzero grayscale fallback with absent, stale unused and algebraically canceled framebuffer samplers. Pixel identity is checked alongside actual snapshot counts; real LUS decoding keeps its existing attribution.",
+      "change_from_09_sha256": "20a61a6e0657199fe29b1ac1e1aad1aca023f55df3bdb0dd87f1b999e8de9061",
+      "newly_added": true
+    }
+  ],
+  "hardware_feedback_09": {
+    "build": "blinky-fix-crash-09",
+    "result": "Gameplay visible, but the world and HUD positions are vertically reversed; glyphs remain upright.",
+    "photographed_fps": 4.3,
+    "photographed_ms_per_frame": 234.5,
+    "photographed_gpu_triangles_per_frame": 2773.2,
+    "photographed_cpu_triangles_per_frame": 66.3,
+    "limit": "Values are read from one user photo, not a benchmark average or an orientation-10 result.",
+    "audio_home_lid_confirmed": false
+  },
+  "validation_10": {
+    "hardware_tested": false,
+    "host_regression_programs_passed": 20,
+    "asymmetric_orientation_checks": 5537,
+    "archived09_and_five_isolated_defects_rejected": true,
+    "unused_framebuffer_negative_and_positive_control_passed": true,
+    "reports": [
+      {
+        "file": "orientation-regression-proof.json",
+        "sha256": "c5814250ca2e2b2f018eb06f337b03204e4e07458ee2d7b80b98b3dc942bfa6c"
+      },
+      {
+        "file": "unused-framebuffer-regression-proof.json",
+        "sha256": "3cd325ae850b960eac6073973d4aa554e30456b9073d6a089bbdb0498ccf977d"
+      },
+      {
+        "file": "verify-port.log",
+        "sha256": "548220e4045c19df42546f967163f8ae64634a69e397c2991ecba90bbe750965"
+      },
+      {
+        "file": "native-symbols-check.json",
+        "sha256": "82481c4d4a80677f355899b1c967379ed234d088c61de61a4e5ddd3446a55e8e"
+      },
+      {
+        "file": "blinky09-log-summary.json",
+        "sha256": "31ad83a70a9af93b279418df181f2e63b0a8df029d9cb2511bdfcb486165f027"
+      }
+    ],
+    "documentation": {
+      "BLINKY-ORIENTATION10.md": "ccd7420d34c2e55fa1072e39695e6027ce42ca7fcd73112d8691d0ffc03641a5",
+      "BLINKY-HARDWARE-TESTS.md": "6af9c4d197162c2adf595a36a26562fb6ebbcb0bc0ddbb86f7337c22f7adda6f"
+    }
+  },
+  "public_contract_references": [
+    {
+      "url": "https://raw.githubusercontent.com/devkitPro/citro3d/v1.7.1/source/maths/mtx_orthotilt.c",
+      "finding": "Landscape Y-up clip coordinates use the native rotation (Y,-X)."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/devkitPro/citro3d/v1.7.1/source/base.c",
+      "finding": "Positive viewport half-height and direct viewport/scissor offsets."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/devkitPro/citro3d/v1.7.1/source/framebuffer.c",
+      "finding": "Framebuffer texture dimensions are its allocated dimensions, including padding."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/devkitPro/tex3ds/master/source/tex3ds.cpp",
+      "finding": "Ordinary input rows remain in order; subtexture top V=1 and bottom V=1-h/H corroborate native sampler direction."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/devkitPro/libctru/master/libctru/source/console.c",
+      "finding": "Software LCD pixel (x,y from top) occupies linear pixel 240*x+239-y."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/azahar-emu/azahar/master/src/video_core/renderer_software/sw_framebuffer.cpp",
+      "finding": "Independent PICA model: color and depth raster row y addresses native tiled row H-1-y."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/azahar-emu/azahar/master/src/video_core/renderer_software/sw_rasterizer.cpp",
+      "finding": "Independent PICA model: sampler V addresses native row H-1-wrap(V*H); viewport uses positive Y."
+    }
+  ],
+  "no_external_implementation_imported": true,
+  "contract_scope": "Public memory/API conventions only; no SDK or emulator implementation body is copied into Blinky.",
+  "orientation_contract": {
+    "storage": "Logical raster row y maps to Morton row nativeHeight-1-y for both color and depth.",
+    "packed_uv": "Ordinary and framebuffer textures use V=logicalV*logicalHeight/nativeHeight; existing normal upload remains inverted in raw storage.",
+    "presentation": "Landscape Y-up coordinates rotate to native clip (Y,-X).",
+    "lus": "GetClipParameters reports the active target invertY; existing interpreter projection and viewport semantics remain attributed upstream.",
+    "copy": "Preserve the source rectangle and source/destination invertY conversions; Snapshot handles physical storage only.",
+    "readback": "Return increasing logical raster rows through Snapshot, matching the existing glReadPixels contract.",
+    "depth": "Apply target invertY with logicalHeight, then Snapshot storage conversion with nativeHeight.",
+    "padding": "For 400x240 in 512x256, logical raster rows 0 and 239 map to raw rows 255 and 16."
+  },
+  "historical_07_08_09_proofs_preserved": [
+    {
+      "file": "docs/provenance07/rsf-provenance.json",
+      "sha256": "f08d5953ed5e59e90b4da48181bda75e2b0a958d08381f5809534fb3cfe62375"
+    },
+    {
+      "file": "docs/provenance07/public-rsf-template.txt",
+      "sha256": "76939ec8326f6335a22ae7525735526693964ab82db5eb42c58fd0fad4b86d9e"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.json",
+      "sha256": "a60ee51c804af25b54dbfea3f41dc9daf44fa6e6cc124ebb6bda803af720a414"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.md",
+      "sha256": "c298e7f08b3495bd8f497c917da02d31a3999e18e4eacf9692e8a4a4e0e70e2d"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.json",
+      "sha256": "429d6b439288f7af20ce39282c8af623f3888dcada1d2e82f842a7031624a414"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.md",
+      "sha256": "62cb9dd34c2550e2f8565f720f33a3232bd7e2713804c165eb66f73b3c179ee5"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.json",
+      "sha256": "665bbbaea9e5ceb810ac56220a01fc26150c239a82c1a5b58c58496653b5b320"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.md",
+      "sha256": "3a3f4aebff56ade582d3dd3feb9e54dadc3c0453174b77f80089af05d064c545"
+    },
+    {
+      "file": "docs/provenance07/blinky-implementation-review.json",
+      "sha256": "bbbd0e7ee7a5cb5571164e3261346ca7e55f88be8a0bcbc70a3e75f1c70d3893"
+    },
+    {
+      "file": "docs/provenance08/review.json",
+      "sha256": "8df4e9317ecc95c525d4b1edeab360c0d45174e6ced7ee2eeab633999200091c"
+    },
+    {
+      "file": "docs/provenance09/review.json",
+      "sha256": "2a4da948de6359fac1f5db8fa4a01187949e58cb46f1caf7029eee434b9c024c"
+    }
+  ]
+}

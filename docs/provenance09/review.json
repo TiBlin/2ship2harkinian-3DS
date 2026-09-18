@@ -1,0 +1,149 @@
+{
+  "build": "blinky-fix-crash-09",
+  "whole_source_original": false,
+  "cleanroom_certified": false,
+  "baseline_build": "blinky-fix-startup-08",
+  "baseline_review_manifest_sha256": "01badfadc5c502855d85bcaee7d368547919cbfe116b9073dc3d425a21736af0",
+  "files": [
+    {
+      "file": "third_party/2ship/mm/2s2h/BenPort.cpp",
+      "category": "C+A",
+      "previous_sha256": "d3ef7d46d06803c13bee62a8d0a87726dcee573a77f39181cf2eba06147b11d7",
+      "sha256": "2e3606693254ecbf80f7ca46498221f80b39c65ae837a84b01c0df66bbb96f01",
+      "evidence": "Keep the freshly allocated GetArchives snapshot in a named shared_ptr throughout OTRExtScanner, and keep the file-map owner through its inner loop. Add two startup progress messages after extension scanning and MM bridge initialization. Preserve the existing independent Blinky native adaptations and official MM base; no unrelated replacement or attribution change.",
+      "change_from_08_sha256": "f737112e15c21b7d5a4e6dd3fb5d993f14e4a3b4cb319fb4c219201c235ef64d",
+      "upstream": {
+        "archive": "mm",
+        "file": "mm/2s2h/BenPort.cpp",
+        "sha256": "4af8d7f3a849977634e50762679ee39e7e801c5a775ce740a6e529f7c7fb7bd3",
+        "normalized_sha256": "4af8d7f3a849977634e50762679ee39e7e801c5a775ce740a6e529f7c7fb7bd3"
+      },
+      "delta_sha256": "0abdad6f872cf1edabd7cd9b2a7c31f37b376989bf7694df038a3b8c6e3780f6",
+      "delta_components": [
+        "A",
+        "D"
+      ]
+    },
+    {
+      "file": "tests/test_2ship_extension_index.py",
+      "category": "D",
+      "previous_sha256": "7cf76603310fc94ab8b2f487449c550bd655e228337ae9fc4560bffb9dbb0f18",
+      "sha256": "01e995886ea672888d15c829a04989253229dc1a31b957977c5508f9f61ccb52",
+      "evidence": "Extend the preserved local regression harness with the actual production GetArchives snapshot factory, fresh-owner/order/null/empty/repeated checks, and a deterministic temporary-owner mutation. Quarantine the physical snapshot allocation separately from its exposed shared_ptr control block so the mutant fails with code 86 before using released storage. Preserve the 50,496-resource alias, override, prefix and alternate-preload cases; extracted MM/LUS functions retain upstream attribution.",
+      "change_from_08_sha256": "a3fc1e880bda792efdcb229fef32c69f397ce46acd0ec2164ed084c3b52adf72"
+    },
+    {
+      "file": "src/blinky/native_runtime.cpp",
+      "category": "A",
+      "previous_sha256": "c09628f77342eb3a42ec66db2eef28ca1a7b475bbaaca054126276696ba5c368",
+      "sha256": "69228086310a4a434a0279232083569f3a8ef53ddcb259ac9d3cd4a9179b5c31",
+      "evidence": "Change only the runtime startup marker from startup fix 08 to startup fix 09; preserve all previously reviewed Blinky runtime behavior.",
+      "change_from_08_sha256": "617628e56a46df5678c37b6841458e31ada33a7255621795c15cafb1286c728a"
+    },
+    {
+      "file": "src/blinky/native_input.cpp",
+      "category": "A",
+      "previous_sha256": "5ff90866ec9d8ad0457def18c0368e2d17e92a7c5d599ab66e15d57aa10c81d3",
+      "sha256": "9d8634051805a450b21c2dd87807b5d94cd1e5bba31e444c1e6a60bb39444ff8",
+      "evidence": "Change only the lower-screen version marker from Blinky 08 to Blinky 09; preserve all previously reviewed input and settings behavior.",
+      "change_from_08_sha256": "69a9935e36cfd8dd92dce0d70d16526f1334a9f4f4e1f089918dec7ce0bdc8bf"
+    }
+  ],
+  "hardware_feedback_08": {
+    "build": "blinky-fix-startup-08",
+    "result": "Startup crashes reported in both CIA and 3DSX.",
+    "formats": [
+      "CIA",
+      "3DSX"
+    ],
+    "dumps": [
+      {
+        "format": "CIA",
+        "dump_file": "crash_dump_00000029.dmp",
+        "dump_sha256": "df7dfef4789ea9f6b308a25ea563f4f31170a215e8701ec1f52e68bc1919135a",
+        "report_sha256": "5bbbb002ad6e1a963739902162dde2750fc44d19d397e15d3ffe95cc1506ba5c",
+        "archived_elf08_sha256": "99eac35ec2b1cd0da7c194df50378f72347e39b691a9a535d02e4df0c7526364",
+        "matched_code_bytes": 96,
+        "pc": "00261f64",
+        "symbol": "OTRExtScanner",
+        "access": "read"
+      },
+      {
+        "format": "3DSX",
+        "dump_file": "crash_dump_00000030.dmp",
+        "dump_sha256": "7dd292a3f352247e9c97e3dd2bd7d487f075108baf4b1f3a3d2472df4cafa266",
+        "report_sha256": "cd24509a51c28ef5db38979475d8c09aee75d15c931df67ad2a35fcd86f95a3c",
+        "archived_elf08_sha256": "99eac35ec2b1cd0da7c194df50378f72347e39b691a9a535d02e4df0c7526364",
+        "matched_code_bytes": 96,
+        "pc": "00261f64",
+        "symbol": "OTRExtScanner",
+        "access": "read"
+      }
+    ],
+    "diagnosis": "OTRExtScanner dereferenced a temporary shared_ptr owning a freshly allocated archive vector. C++20 destroys that owner before the range-for body; the 09 fix retains it for the complete scan.",
+    "audio_home_lid_confirmed": false
+  },
+  "validation_09": {
+    "hardware_tested": false,
+    "host_test": "tests/test_2ship_extension_index.py passed independently: production ownership/alias cases and the expired-owner mutant.",
+    "mutant_expected_exit": 86,
+    "mutant_expected_diagnostic": "snapshot owner expired before Archive::ListFiles",
+    "mutant_memory_safety": "The physical vector allocation is retained in quarantine until scan completion/unwinding; only the exposed control block expires. The guard therefore detects the premature owner release without dereferencing freed vector or Archive storage.",
+    "generated_resource_count": 50496,
+    "arm_review": "09 OTRExtScanner calls GetArchives at 0x261f14, reads the live vector at 0x261f20 and branches into the body at 0x261f28 while the owner remains live. Snapshot destruction at 0x261f30 belongs to the exhausted-range exit; file-map release at 0x261f6c follows completion of the inner traversal.",
+    "arm_disassembly_sha256": "80b6f2c78c28c6aa9bc234ba96000831abf48689be0bce7076dd31b4f17488e4",
+    "limit": "Host regression and inspected native instructions do not constitute a successful console run or a measured performance improvement."
+  },
+  "adjacent_lifetime_review": {
+    "scope": "Read-only review of shared_ptr-container return values, range-for/ref/get consumers and adjacent native resource/audio borrowers.",
+    "additional_confirmed_same_class_defects": [],
+    "archive_manager_rebuild": "ArchiveManager.cpp:315 dereferences Archive::ListFiles() without a named local owner, but that unfiltered getter returns mHashes retained by the Archive in mArchives; the loop does not clear or remount it.",
+    "named_snapshot_consumers": "ResourceManager.cpp:262/298/333, z_play_2SH.cpp:66, DynamicCosmeticEditor.cpp:416/762 and ScriptLoader.cpp:244 retain named shared_ptr owners.",
+    "desktop_scan_copy": "The desktop OTRExtScanner branch copies the vector by value within the full expression, before its temporary owner is destroyed.",
+    "interpreter_borrow": "RunCommands retains a shared window for the complete call; that window owns mInterpreter. Its weak.lock().get() borrow does not depend solely on the temporary shared_ptr.",
+    "audio": "Blinky NDSP copies input PCM into Device-owned storage before publishing descriptors and joins DSP work before freeing descriptors/PCM.",
+    "remaining_contract_limit": "HashToCString, GetString and resource raw pointers remain borrowed until mutation/unload; no additional immediate dangling-owner defect was demonstrated on the reviewed paths."
+  },
+  "historical_07_08_proofs_preserved": [
+    {
+      "file": "docs/provenance07/rsf-provenance.json",
+      "sha256": "f08d5953ed5e59e90b4da48181bda75e2b0a958d08381f5809534fb3cfe62375"
+    },
+    {
+      "file": "docs/provenance07/public-rsf-template.txt",
+      "sha256": "76939ec8326f6335a22ae7525735526693964ab82db5eb42c58fd0fad4b86d9e"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.json",
+      "sha256": "a60ee51c804af25b54dbfea3f41dc9daf44fa6e6cc124ebb6bda803af720a414"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.md",
+      "sha256": "c298e7f08b3495bd8f497c917da02d31a3999e18e4eacf9692e8a4a4e0e70e2d"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.json",
+      "sha256": "429d6b439288f7af20ce39282c8af623f3888dcada1d2e82f842a7031624a414"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.md",
+      "sha256": "62cb9dd34c2550e2f8565f720f33a3232bd7e2713804c165eb66f73b3c179ee5"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.json",
+      "sha256": "665bbbaea9e5ceb810ac56220a01fc26150c239a82c1a5b58c58496653b5b320"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.md",
+      "sha256": "3a3f4aebff56ade582d3dd3feb9e54dadc3c0453174b77f80089af05d064c545"
+    },
+    {
+      "file": "docs/provenance07/blinky-implementation-review.json",
+      "sha256": "bbbd0e7ee7a5cb5571164e3261346ca7e55f88be8a0bcbc70a3e75f1c70d3893"
+    },
+    {
+      "file": "docs/provenance08/review.json",
+      "sha256": "8df4e9317ecc95c525d4b1edeab360c0d45174e6ced7ee2eeab633999200091c"
+    }
+  ]
+}

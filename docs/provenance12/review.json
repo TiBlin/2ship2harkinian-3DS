@@ -1,0 +1,255 @@
+{
+  "build": "blinky-occlusion-12",
+  "baseline_build": "blinky-20fps-11",
+  "baseline_manifest_sha256": "de651f7760de5f68fe58be8ba969a2fd5e85c76b08ff2c27676fca4d6810d0ec",
+  "whole_source_original": false,
+  "cleanroom_certified": false,
+  "hardware_tested": false,
+  "no_external_implementation_imported": true,
+  "files": [
+    {
+      "file": "build.py",
+      "category": "A",
+      "previous_sha256": "03d02fac0406840ff5fa9f631a22baecf40f2a63a3445e4f4d4075423c143421",
+      "sha256": "f174421b13c5dc6bc69ab96b594b4516286e848f4c1133ffcae6c030377b5d52",
+      "delta_from_11_sha256": "c59af5bc316ca4fae3b54e3e2ffa94532eadea84cd732903c41c92e15c3d2dad",
+      "evidence": "Expose OFF/ON, removable statistics and optional debug through the existing build driver; record build flags."
+    },
+    {
+      "file": "CMakeLists.txt",
+      "category": "A",
+      "previous_sha256": "317f401cfbcd8cdcfb4eb4bec3be9a232e2958ada198bc609c72105f267e4298",
+      "sha256": "abd0974da406174c1b10ea2697ef757049ccd690939b09a4d80db6ab9def6991",
+      "delta_from_11_sha256": "a6be37a22975ef11e0e9fec1d7ed232409597e4ac926f65f8b9653082043fd15",
+      "evidence": "Default-off CMake options; compile bridge in existing backend; apply matching flags only to native targets and the three measured MM units."
+    },
+    {
+      "file": "scripts/summarize_blinky_visibility.py",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "6ebd0893d483a6b639ded0c306223d5fe34c94de952057819a12cdd99a31467a",
+      "delta_from_11_sha256": "bfa9aeb13b98417ba53f3ecdae7a8d5850cafa869fe4c3860cab628ae6c0373c",
+      "evidence": "New offline parser for explicitly sampled frames; median/p95/mean, no invented hardware result."
+    },
+    {
+      "file": "scripts/verify_port.py",
+      "category": "A",
+      "previous_sha256": "a8b0995762e2eb206d7cc32fac5eab83d5f10bafa1eab6a15b5faad68bed8558",
+      "sha256": "f0171f7324352dfa912c518e58ec9763148527a236c98b95414e8ff566bb9cdc",
+      "delta_from_11_sha256": "4ec88a3493c5766a65ccb2d78db50ec916b80c27eae65b5152fdbc2b71901b8a",
+      "evidence": "Register the new core regression program while preserving all existing programs."
+    },
+    {
+      "file": "src/blinky/coarse_occlusion.h",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "82f76b912edb2461f1ab89821fbff94243fbd5e73ff1d22334c4fb9435a66fca",
+      "delta_from_11_sha256": "90be208a5bd1068d8ba61d0a18e012a26f3b433fdf024e8472b64b26443a0736",
+      "evidence": "Independent fixed 50x30 grid, actual full-triangle-cell coverage, opposing depth/coverage margins, bounded work and current-frame invalidation; two independent eye proofs."
+    },
+    {
+      "file": "src/blinky/gfx_blinky_citro3d.cpp",
+      "category": "A",
+      "previous_sha256": "7f376c7ec05d22d86099c3aee14e9261e057262f07f3096bf0d38c13592aee28",
+      "sha256": "1c42279b0afeea9d7df1c814e6eb8971c0a5f30f73bf8a00164126208a692f49",
+      "delta_from_11_sha256": "bbe46855a116e3a59d5fb78c240a21e1c05b7aed8d3729ace1bc81477d4eb1c6",
+      "evidence": "Reject whole tagged static OPA batches before Blinky processing; register only accepted unsplit GPU triangles under strict material/Z/target conditions; preserve hardware depth and all state commands; instrument actual calls/copies/waits."
+    },
+    {
+      "file": "src/blinky/native_input.cpp",
+      "category": "A",
+      "previous_sha256": "4cd9422db32dd0e9dfc2616d2b677e5d31f5ce4a7765c870a6f42695ab7a78ad",
+      "sha256": "cec38b72db1f0eb59b8e040b39fff7825844c90cf8966d04237eb6b12111e887",
+      "delta_from_11_sha256": "267bfd627cc85e5ea17a7c2e42bd41f2578d8c8b333e7185a2a2f95c8b6ba4ba",
+      "evidence": "Blinky12 marker and optional sampled occlusion/PICA counters; preserve fixed20 FPS and settings behavior."
+    },
+    {
+      "file": "src/blinky/native_runtime.cpp",
+      "category": "A",
+      "previous_sha256": "275340cbf08a7cd1bdb26a80d9d3b232ffa5796e819388bb61cbbcfe4b307aa5",
+      "sha256": "197b8c2d97b7279ee763b3a9f1b7554a7036e8e55d6ea5af285e1e360fdd3786",
+      "delta_from_11_sha256": "115fc49bd2a606c2f25a49d37580603cf5efafeac05200c6543af9c357e228ad",
+      "evidence": "Only update startup version marker to occlusion prototype12;20 FPS unchanged."
+    },
+    {
+      "file": "src/blinky/visibility_bridge.cpp",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "cd9ad35ac7d62df112c18fe5591ae10d3beaaeb066c74d7e87e3369ff8fa46c9",
+      "delta_from_11_sha256": "77328f79aec00f6ec55f18fd9b5a46d4f0d10da2aed09461b2bff61d0614d32b",
+      "evidence": "Independent native category ABI, optional timing/counters and sampled log; no-op implementation when disabled."
+    },
+    {
+      "file": "tests/blinky/graphics/3ds.h",
+      "category": "A",
+      "previous_sha256": "6d5d2b71426fd3b9734b9006534ccb033d4265f07d32e414e93df60c27ba79f6",
+      "sha256": "950fd42f2098ca133b8c428dad3016a00f6e2e127dbebe81703dcb762e2c7667",
+      "delta_from_11_sha256": "934d3ba64b4b9416f8b68535ee30b87f1e375b57720629d81af61647636a97ce",
+      "evidence": "Extend existing host collaborator with observable stereo state."
+    },
+    {
+      "file": "tests/blinky/graphics/citro3d.h",
+      "category": "A",
+      "previous_sha256": "3776f169237e9de33586495b83920bb9dbae1767035fc7c04c9dd6a939c0518e",
+      "sha256": "56f75ee4d125a9425f3f9de234160e7a15be065af9148d4433fb9a990505c8fe",
+      "delta_from_11_sha256": "2984793f8f1d88416038b76bd38f4fe872efe5c62a37dc0901c6980079abd7d1",
+      "evidence": "Provide zero-valued queue timing collaborators; never interpreted as hardware measurements."
+    },
+    {
+      "file": "tests/blinky/graphics/occlusion.inc",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "7c10d3e95ed8974dbefbaaedba1419dbfd99e015bbc9173c33bcbd67876211ee",
+      "delta_from_11_sha256": "3584c067e102f8837109eab0aa4aa309bcb8e76e54516bca83f97c5ecc18899d",
+      "evidence": "New production-backend guards including actual C3D submission rejection, alpha/scope/stereo/target/frame/depth invalidation and OFF behavior."
+    },
+    {
+      "file": "tests/blinky/graphics/renderer.cpp",
+      "category": "A",
+      "previous_sha256": "7bf04f59a40106db4f989058697e617a6cc06dd86b177bb879ae05acdf5fe1cb",
+      "sha256": "e809a72947e6b9e54ab0d46ce54590824c12073c8bfafdf7682540aed1749875",
+      "delta_from_11_sha256": "8c54354734f0ec5de03e139e569f02ffa08a7af70746ec47088fb39744902492",
+      "evidence": "Invoke new integration scenarios; preserve all previous production regressions."
+    },
+    {
+      "file": "tests/blinky/occlusion.cpp",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "de7b18e2eb200c2784f070148dc9ea6a003eb30b9a27ff85f9436c3bc801919d",
+      "delta_from_11_sha256": "263bfadbee8b38a53cb7f6cea25f8f46f2345aee4701fabb9d01523a219e1608",
+      "evidence": "New independent corner/pixel geometry oracles and conservative/budget/stereo cases;1000 seeded perspective triangles."
+    },
+    {
+      "file": "tests/test_blinky_occlusion.py",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "5795c5fe0b100cdbd7a2b150af693176a8525d7e4042a5874791826d62dc9f9b",
+      "delta_from_11_sha256": "8d8b69de536b45fcf375004af69531721990809a8aea0539e2b2a3eaf8a8b7f5",
+      "evidence": "New host compile/run driver for production allocation-free core."
+    },
+    {
+      "file": "tests/test_blinky_renderer.py",
+      "category": "A",
+      "previous_sha256": "be6c33b8e9c4e89f137aae095ac85d0f20f16545cde8031f3f9dbb4e78c8e5b4",
+      "sha256": "fb09943c24b0c689139b8c1092efa25eb66169091665bd6502fef45a0f33b91f",
+      "delta_from_11_sha256": "9ae2bdc60d77705fa9a5bdc312adca47368c6533a515c0dba4e9e4ab5062ff0a",
+      "evidence": "Link production visibility bridge and compile/run four ON/OFF statistics/debug combinations."
+    },
+    {
+      "file": "third_party/2ship/mm/src/code/z_actor.c",
+      "category": "C+A",
+      "previous_sha256": "8ca8afe65d1da1a7c634ee14dd39f7053345189077c1d33fb8518349e8a97085",
+      "sha256": "fc3415306bed959a35aa4c522309c4dcc8996e8d2411ec221eb85ef73f416ad4",
+      "delta_from_11_sha256": "40979f68bdb7cf29522ec4fed66c0acbfb7a1dd331f1def6ff2455e2df7285f3",
+      "evidence": "Preserve official MM actor culling/callback behavior; count existing callback invocations and volume rejections only."
+    },
+    {
+      "file": "third_party/2ship/mm/src/code/z_play.c",
+      "category": "C+A",
+      "previous_sha256": "aa439e63da371241decb8f5065cc964cd003887ffc8ebb55bf912a0b5cb9af55",
+      "sha256": "1d21ae96a7cb149649dee8f61370c91510fb73a4680b8f3bd16ba262a388e480",
+      "delta_from_11_sha256": "1d8dadcd90fe9ca8afa241f3da29d41c2840f3dec888e19aaef4dca5f5dc6400",
+      "evidence": "Preserve MM and previous attributed deltas; optional begin/end timing around Play_Draw only."
+    },
+    {
+      "file": "third_party/2ship/mm/src/code/z_room.c",
+      "category": "C+A",
+      "previous_sha256": "38089f89a78835c86e19fbf59aae818de65d46ccb74aad443b151b25dcc93f2f",
+      "sha256": "caa8dc63e384640df31a8ba17dcac78f09333ef4417c5e166a457c363c9898ff",
+      "delta_from_11_sha256": "353dbca05dfd89147148f7222f1d8b99cddcb06b84adec14c51ac2928c22d032",
+      "evidence": "Preserve official MM room order/culling and every display list; count existing work and emit native runtime NOOP scope tags around NORMAL/CULLABLE room streams."
+    },
+    {
+      "file": "third_party/libultraship/include/ship/port/3ds/BlinkyVisibility.h",
+      "category": "A",
+      "previous_sha256": null,
+      "sha256": "f6e432bce5735c030b69a532fbe8a33b3c36cf7c6a6aa2a43c6e3eabbda64d4c",
+      "delta_from_11_sha256": "f9495685540aca66086faaf79e975a6e171f250c7d5cf9f5d3d0593eab7e4d03",
+      "evidence": "New independent native C ABI/types/macros. OFF without statistics emits no Gfx command or pointer increment."
+    },
+    {
+      "file": "third_party/libultraship/src/fast/interpreter.cpp",
+      "category": "B+A",
+      "previous_sha256": "ac928ce9cab4b675e3f29021512dd8a6f5e0c00df0dcd6a76d34986aac32b1a4",
+      "sha256": "de47072cac6739cb1b6ce6e70ada50ce78d96ac9b665e5856d372776c98858bf",
+      "delta_from_11_sha256": "5c54aeeddaf8ea9a90a378409b0d01c2df4034fd11765f7d0ef5b334a5bfb537",
+      "evidence": "Preserve official LUS and prior native seams; exact native NOOP tag flushes buffered geometry before scope change; measure native interpretation boundaries."
+    }
+  ],
+  "validation": {
+    "hardware_tested": false,
+    "host_regression_programs_passed": 21,
+    "renderer_flag_combinations": 4,
+    "core_object_bytes": 3044,
+    "fps_cap": 20,
+    "reports": [
+      {
+        "file": "verify-port.log",
+        "sha256": "be56484ec5e659ab0044f4fd0748594b6bb5c4355456d1d57ba0f681cf694d29"
+      },
+      {
+        "file": "native-symbols-check.json",
+        "sha256": "9f1a476036336cc885a3c682f30898fc44e0de59b37341ad51331aa0825a1d76"
+      },
+      {
+        "file": "summary-parser-check.json",
+        "sha256": "aacb01567cae967a88978d3d2013b7156ba2193886ea0d8786938bcf3730da41"
+      }
+    ]
+  },
+  "historical_proofs_preserved": [
+    {
+      "file": "docs/provenance07/rsf-provenance.json",
+      "sha256": "f08d5953ed5e59e90b4da48181bda75e2b0a958d08381f5809534fb3cfe62375"
+    },
+    {
+      "file": "docs/provenance07/public-rsf-template.txt",
+      "sha256": "76939ec8326f6335a22ae7525735526693964ab82db5eb42c58fd0fad4b86d9e"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.json",
+      "sha256": "a60ee51c804af25b54dbfea3f41dc9daf44fa6e6cc124ebb6bda803af720a414"
+    },
+    {
+      "file": "docs/provenance07/lus-provenance.md",
+      "sha256": "c298e7f08b3495bd8f497c917da02d31a3999e18e4eacf9692e8a4a4e0e70e2d"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.json",
+      "sha256": "429d6b439288f7af20ce39282c8af623f3888dcada1d2e82f842a7031624a414"
+    },
+    {
+      "file": "docs/provenance07/mm-provenance.md",
+      "sha256": "62cb9dd34c2550e2f8565f720f33a3232bd7e2713804c165eb66f73b3c179ee5"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.json",
+      "sha256": "665bbbaea9e5ceb810ac56220a01fc26150c239a82c1a5b58c58496653b5b320"
+    },
+    {
+      "file": "docs/provenance07/local-provenance.md",
+      "sha256": "3a3f4aebff56ade582d3dd3feb9e54dadc3c0453174b77f80089af05d064c545"
+    },
+    {
+      "file": "docs/provenance07/blinky-implementation-review.json",
+      "sha256": "bbbd0e7ee7a5cb5571164e3261346ca7e55f88be8a0bcbc70a3e75f1c70d3893"
+    },
+    {
+      "file": "docs/provenance08/review.json",
+      "sha256": "8df4e9317ecc95c525d4b1edeab360c0d45174e6ced7ee2eeab633999200091c"
+    },
+    {
+      "file": "docs/provenance09/review.json",
+      "sha256": "2a4da948de6359fac1f5db8fa4a01187949e58cb46f1caf7029eee434b9c024c"
+    },
+    {
+      "file": "docs/provenance10/review.json",
+      "sha256": "7da5ef1e9d11ee4471d06bd4ee2035eed39efba6078915b80cb37f1b9d8f24fb"
+    },
+    {
+      "file": "docs/provenance11/review.json",
+      "sha256": "ba86203f460bf8e9a3532e2e8e73b7cb777266d906cec680fdcd9238c1260242"
+    }
+  ],
+  "scope": "Conservative current-frame static LUS-batch prototype only. No actor callback suppression, audio/gameplay or asset format changes. Physical speedup unmeasured."
+}
