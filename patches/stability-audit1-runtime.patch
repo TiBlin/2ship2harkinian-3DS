@@ -1,0 +1,599 @@
+diff --git a/third_party/2ship/mm/2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.cpp b/third_party/2ship/mm/2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.cpp
+--- a/third_party/2ship/mm/2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.cpp
++++ b/third_party/2ship/mm/2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.cpp
+@@ -1,7 +1,11 @@
+ #include "AuthenticGfxPatches.h"
+ #include <libultraship/bridge/consolevariablebridge.h>
+ #include "2s2h/ShipInit.hpp"
++#ifdef __3DS__
++#include <ship/Context.h>
++#include <ship/resource/ResourceManager.h>
++#endif
+ extern "C" {
+ #include "gfx.h"
+ #include "objects/gameplay_keep/gameplay_keep.h"
+ #include "objects/object_fz/object_fz.h"
+@@ -312,17 +316,40 @@
+     { { { -640, 100, -1253 }, 0, { 1253, 1024 }, { 208, 118, 0, 255 } } },
+ };
+ 
+ void PatchGeometrySeams() {
++#ifdef __3DS__
++    if (!CVarGetInteger("gEnhancements.Graphics.FixSceneGeometrySeams", 0)) {
++        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00DL_0032D0", "clockTownRampSeam");
++        return;
++    }
++    // This static DL outlives PlayState. Scene eviction can remove the cache
++    // entry, so retain the owner of the vertices embedded in the command.
++    static std::shared_ptr<Ship::IResource> rampOwner;
++    if (rampOwner == nullptr) {
++        rampOwner = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(
++            "__OTR__scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00Vtx_002A90");
++    }
++    if (rampOwner == nullptr || rampOwner->GetRawPointer() == nullptr ||
++        rampOwner->GetPointerSize() < (14 + 32) * sizeof(Vtx)) {
++        // Do not install this optional seam patch with a partial vertex range.
++        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00DL_0032D0", "clockTownRampSeam");
++        return;
++    }
++#endif
+     static Gfx southClockTownRampDL[] = {
+         gsSPVertex(southClockTownRampVtx + 0, 5, 0),
+         gsSP2Triangles(0, 1, 2, 0, 1, 3, 2, 0),
+         gsSP1Triangle(3, 4, 2, 0),
+         // Restore the unmodified vertices after the seam patch
++#ifdef __3DS__
++        gsSPVertex(static_cast<Vtx*>(rampOwner->GetRawPointer()) + 14, 32, 0),
++#else
+         gsSPVertex(
+             (Vtx*)ResourceMgr_LoadVtxArrayByName("__OTR__scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00Vtx_002A90") +
+                 14,
+             32, 0),
++#endif
+         gsSPEndDisplayList(),
+     };
+     if (CVarGetInteger("gEnhancements.Graphics.FixSceneGeometrySeams", 0)) {
+         ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00DL_0032D0", "clockTownRampSeam", 49,
+@@ -345,9 +372,24 @@
+     ResourceMgr_PatchGfxByName(sTransWipe1DL, "zbufferRemoval", 4, gsSPSetGeometryMode(G_SHADE | G_SHADING_SMOOTH));
+ }
+ 
+ void GfxPatcher_ApplyFierceDeityGIPatch() {
++#ifdef __3DS__
++    // The static item DL borrows a scene texture even outside Termina Field.
++    // Keep that one resource alive; do not disable scene eviction globally.
++    static std::shared_ptr<Ship::IResource> grassOwner;
++    if (grassOwner == nullptr) {
++        grassOwner = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(
++            "scenes/nonmq/Z2_SOUGEN/Z2_SOUGENTex_0063D0");
++    }
++    if (grassOwner == nullptr || grassOwner->GetRawPointer() == nullptr ||
++        grassOwner->GetPointerSize() < 32 * 32 * sizeof(uint16_t)) {
++        return; // No TEXEL1 workaround is safer than embedding a null texture.
++    }
++    static char* grassTexture = static_cast<char*>(grassOwner->GetRawPointer());
++#else
+     static char* grassTexture = ResourceMgr_LoadTexOrDListByName("scenes/nonmq/Z2_SOUGEN/Z2_SOUGENTex_0063D0");
++#endif
+     static Gfx loadGrassDL[] = {
+         gsDPPipeSync(),
+         gsDPLoadMultiBlock(grassTexture, 0x0080, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, 5, 5, G_TX_NOLOD, 15),
+diff --git a/third_party/libultraship/include/ship/resource/ResourceManager.h b/third_party/libultraship/include/ship/resource/ResourceManager.h
+--- a/third_party/libultraship/include/ship/resource/ResourceManager.h
++++ b/third_party/libultraship/include/ship/resource/ResourceManager.h
+@@ -441,8 +441,12 @@
+ 
+     std::shared_ptr<IResource> GetCachedResource(std::variant<ResourceLoadError, std::shared_ptr<IResource>> cacheLine);
+ 
+   private:
++#ifdef __3DS__
++    std::shared_ptr<IResource> PublishResourceLoad(const ResourceIdentifier& identifier,
++                                                  std::shared_ptr<IResource> resource, bool definitelyMissing);
++#endif
+     std::unordered_map<ResourceIdentifier, std::variant<ResourceLoadError, std::shared_ptr<IResource>>,
+                        ResourceIdentifierHash>
+         mResourceCache;
+     std::shared_ptr<ResourceLoader> mResourceLoader;
+diff --git a/third_party/libultraship/src/fast/resource/factory/TextureFactory.cpp b/third_party/libultraship/src/fast/resource/factory/TextureFactory.cpp
+--- a/third_party/libultraship/src/fast/resource/factory/TextureFactory.cpp
++++ b/third_party/libultraship/src/fast/resource/factory/TextureFactory.cpp
+@@ -1,9 +1,34 @@
+ #include "fast/resource/factory/TextureFactory.h"
+ #include "fast/resource/type/Texture.h"
+ #include "spdlog/spdlog.h"
++#include <limits>
++#include <stdexcept>
+ 
+ namespace Fast {
++namespace {
++uint16_t ReadTextureDimension(const std::shared_ptr<Ship::BinaryReader>& reader) {
++    const uint32_t value = reader->ReadUInt32();
++    if (value == 0 || value > std::numeric_limits<uint16_t>::max()) {
++        throw std::runtime_error("Texture: invalid dimension");
++    }
++    return static_cast<uint16_t>(value);
++}
++
++void AttachTexturePayload(const std::shared_ptr<Texture>& texture, const std::shared_ptr<Ship::File>& file,
++                          const std::shared_ptr<Ship::BinaryReader>& reader) {
++    const size_t offset = reader->GetBaseAddress();
++    if (!file->Buffer || offset > file->Buffer->size() || texture->ImageDataSize == 0 ||
++        texture->ImageDataSize > file->Buffer->size() - offset) {
++        throw std::runtime_error("Texture: payload exceeds file buffer");
++    }
++    // Keep zero-copy ownership, but never publish an unchecked span. This checks
++    // storage bounds, not every renderer-specific interpretation of the format.
++    texture->mImageBuffer = file->Buffer;
++    texture->ImageData = reinterpret_cast<uint8_t*>(file->Buffer->data() + offset);
++}
++} // namespace
++
+ 
+ std::shared_ptr<Ship::IResource>
+ ResourceFactoryBinaryTextureV0::ReadResource(std::shared_ptr<Ship::File> file,
+                                              std::shared_ptr<Ship::ResourceInitData> initData) {
+@@ -14,13 +39,12 @@
+     auto texture = std::make_shared<Texture>(initData);
+     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
+ 
+     texture->Type = (TextureType)reader->ReadUInt32();
+-    texture->Width = reader->ReadUInt32();
+-    texture->Height = reader->ReadUInt32();
++    texture->Width = ReadTextureDimension(reader);
++    texture->Height = ReadTextureDimension(reader);
+     texture->ImageDataSize = reader->ReadUInt32();
+-    texture->mImageBuffer = file->Buffer;
+-    texture->ImageData = reinterpret_cast<uint8_t*>(file->Buffer->data() + reader->GetBaseAddress());
++    AttachTexturePayload(texture, file, reader);
+ 
+     return texture;
+ }
+ 
+@@ -34,16 +58,15 @@
+     auto texture = std::make_shared<Texture>(initData);
+     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
+ 
+     texture->Type = (TextureType)reader->ReadUInt32();
+-    texture->Width = reader->ReadUInt32();
+-    texture->Height = reader->ReadUInt32();
++    texture->Width = ReadTextureDimension(reader);
++    texture->Height = ReadTextureDimension(reader);
+     texture->Flags = reader->ReadUInt32();
+     texture->HByteScale = reader->ReadFloat();
+     texture->VPixelScale = reader->ReadFloat();
+     texture->ImageDataSize = reader->ReadUInt32();
+-    texture->mImageBuffer = file->Buffer;
+-    texture->ImageData = reinterpret_cast<uint8_t*>(file->Buffer->data() + reader->GetBaseAddress());
++    AttachTexturePayload(texture, file, reader);
+ 
+     return texture;
+ }
+ } // namespace Fast
+diff --git a/third_party/libultraship/src/ship/audio/NdspAudioPlayer.cpp b/third_party/libultraship/src/ship/audio/NdspAudioPlayer.cpp
+--- a/third_party/libultraship/src/ship/audio/NdspAudioPlayer.cpp
++++ b/third_party/libultraship/src/ship/audio/NdspAudioPlayer.cpp
+@@ -8,8 +8,10 @@
+ #include <3ds.h>
+ 
+ #include <algorithm>
+ #include <array>
++#include <atomic>
++#include <limits>
+ #include <cstring>
+ 
+ #include <spdlog/spdlog.h>
+ 
+@@ -30,10 +32,13 @@
+ };
+ 
+ std::array<AudioBuffer, kBufferCount> sBuffers;
+ LightLock sBufferLock;
+-bool sInitialized = false;
++std::atomic<bool> sInitialized{ false };
+ uint32_t sDroppedBatches = 0;
++// Protected by sBufferLock. Bounded diagnostics; no retry or SD I/O on failure.
++uint32_t sFlushFailures = 0;
++Result sLastFlushResult = 0;
+ // SoH-3DS telemetry: high-water occupancy since the last pacing report. These
+ // establish real hardware queue use before any pool resize is considered.
+ uint32_t sPeakBufferedFrames = 0;
+ size_t sPeakLiveWaves = 0;
+@@ -165,8 +170,11 @@
+         return 0;
+     }
+ 
+     BufferLockGuard lock;
++    if (!sInitialized) {
++        return 0; // DoClose may have completed after the first, atomic check.
++    }
+ 
+     // A PLAYING wave has already been consumed up to the channel's current
+     // sample position. Counting its full size would make the producer believe
+     // it had almost one extra batch buffered and delay refills precisely when
+@@ -202,12 +210,11 @@
+     if (!sInitialized || buf == nullptr || len == 0) {
+         return;
+     }
+ 
+-    // SoH-3DS: temporary diagnostics - a refill arriving after the channel
+-    // fully drained means an audible gap. Gap-riddled output sounds both
+-    // choppy and quiet (silence drags the perceived level down), which is
+-    // indistinguishable by ear from latency.
++    // Empty-queue observations are NOT proven audible underruns: start,
++    // pause and teardown can also empty the queue. Keep this existing polling
++    // metric separate from cache-flush failures and dropped submissions.
+     {
+         static uint32_t sCalls = 0, sGaps = 0;
+         static int32_t sMinBuffered = INT32_MAX;
+         const int32_t buffered = Buffered();
+@@ -219,18 +226,23 @@
+         }
+         if (++sCalls % 512 == 0) { // roughly every 25 s of audio
+             uint32_t peakBuffered;
+             size_t peakLiveWaves;
++            uint32_t flushFailures;
++            Result lastFlushResult;
+             {
+                 BufferLockGuard lock;
+                 peakBuffered = sPeakBufferedFrames;
+                 peakLiveWaves = sPeakLiveWaves;
+                 sPeakBufferedFrames = 0;
+                 sPeakLiveWaves = 0;
++                flushFailures = sFlushFailures;
++                lastFlushResult = sLastFlushResult;
+             }
+-            SPDLOG_INFO("NDSP pacing: {} refills, {} gaps, min buffered {} frames, peak buffered {} frames, "
+-                        "peak live waves {} of {}",
+-                        sCalls, sGaps, sMinBuffered, peakBuffered, peakLiveWaves, kBufferCount);
++            SPDLOG_INFO("NDSP pacing: {} refills, {} empty observations, min buffered {} frames, peak buffered {} frames, "
++                        "peak live waves {} of {}, flush failures {}, last Result {}",
++                        sCalls, sGaps, sMinBuffered, peakBuffered, peakLiveWaves, kBufferCount,
++                        flushFailures, static_cast<uint32_t>(lastFlushResult));
+             sMinBuffered = INT32_MAX;
+         }
+     }
+ 
+@@ -261,10 +273,20 @@
+         const size_t byteCount = frameCount * kChannels * sizeof(int16_t);
+         std::memcpy(buffer->samples, source, byteCount);
+         // svcFlushProcessDataCache provides the coherency NDSP needs at a
+         // fraction of DSP_FlushDataCache's cost (MK64-3DS measurement).
+-        svcFlushProcessDataCache(CUR_PROCESS_HANDLE, reinterpret_cast<u32>(buffer->samples),
+-                                 static_cast<u32>(byteCount));
++        const Result flushResult = svcFlushProcessDataCache(CUR_PROCESS_HANDLE,
++                                                             reinterpret_cast<u32>(buffer->samples),
++                                                             static_cast<u32>(byteCount));
++        if (R_FAILED(flushResult)) {
++            sLastFlushResult = flushResult;
++            if (sFlushFailures != std::numeric_limits<uint32_t>::max()) {
++                ++sFlushFailures;
++            }
++            // Leave this reusable slot unqueued. Submitting after a failed
++            // flush would give the DSP memory whose coherency is not assured.
++            return;
++        }
+         std::memset(&buffer->wave, 0, sizeof(buffer->wave));
+         buffer->wave.data_vaddr = buffer->samples;
+         buffer->wave.nsamples = static_cast<u32>(frameCount);
+         buffer->wave.looping = false;
+diff --git a/third_party/libultraship/src/ship/resource/ResourceLoader.cpp b/third_party/libultraship/src/ship/resource/ResourceLoader.cpp
+--- a/third_party/libultraship/src/ship/resource/ResourceLoader.cpp
++++ b/third_party/libultraship/src/ship/resource/ResourceLoader.cpp
+@@ -245,8 +245,11 @@
+         return nullptr;
+     }
+ 
+     auto metaInitData = ReadResourceInitData(filePath, metaFileToLoad);
++    if (metaInitData == nullptr) {
++        return nullptr; // Invalid optional alias: preserve the original file.
++    }
+     auto aliasedFileToLoad = resourceManager->LoadFileProcess(metaInitData->Path);
+     if (aliasedFileToLoad == nullptr) {
+         return nullptr;
+     }
+@@ -488,16 +491,20 @@
+     resourceInitData->Path = filePath;
+ 
+     if (document == nullptr) {
+         SPDLOG_ERROR("Error reading OTR header from XML: No XML document for file {}", filePath);
+-        return resourceInitData;
++        return nullptr;
+     }
+ 
+     // XML
+     resourceInitData->IsCustom = true;
+     resourceInitData->Format = RESOURCE_FORMAT_XML;
+ 
+     auto root = document->FirstChildElement();
++    if (root == nullptr) {
++        SPDLOG_ERROR("Error reading OTR header from XML: No root element for file {}", filePath);
++        return nullptr;
++    }
+     resourceInitData->Type =
+         Context::GetRawInstance()->GetResourceManager()->GetResourceLoader()->GetResourceType(root->Name());
+     resourceInitData->ResourceVersion = root->IntAttribute("Version");
+ 
+diff --git a/third_party/libultraship/src/ship/resource/ResourceManager.cpp b/third_party/libultraship/src/ship/resource/ResourceManager.cpp
+--- a/third_party/libultraship/src/ship/resource/ResourceManager.cpp
++++ b/third_party/libultraship/src/ship/resource/ResourceManager.cpp
+@@ -161,35 +161,32 @@
+     // catch, and any archive implementation can throw here (hardware
+     // throw-tracer caught a bad_alloc in O2rArchive's buffer allocation at
+     // the heap ceiling). One catch at this boundary covers every archive
+     // source - including the ".meta" string concat below, which also
+-    // allocates. Allocation-free handler; failure is cached like NotFound.
++    // allocates. A transient failure must not poison the alternate-asset cache.
+     std::shared_ptr<File> file = nullptr;
+     bool missingWithoutMeta = false;
++    bool definitelyMissing = false;
+     try {
+         file = LoadFileProcess(identifier.Path);
+         missingWithoutMeta = file == nullptr && !mArchiveManager->HasFile(identifier.Path + ".meta");
++        definitelyMissing = missingWithoutMeta && !mArchiveManager->HasFile(identifier.Path);
+     } catch (const std::exception& e) {
+         TwoShip3dsTraceResourceFailure(identifier.Path.c_str(), "archive-load-exception", e.what());
+         std::fprintf(stderr, "resource: file load threw for %s: %s\n", identifier.Path.c_str(), e.what());
+         // Transient failure (heap ceiling): return null WITHOUT the negative
+         // cache below - once memory is reclaimed (eviction, scene change) a
+         // retry of this same path must be allowed to succeed. Only a true
+-        // absent file earns the permanent NotFound cache line.
+-        return nullptr;
++        // absent file earns the NotFound cache line. A racing successful load
++        // may already have published a usable resource.
++        return PublishResourceLoad(identifier, nullptr, false);
+     }
+     if (missingWithoutMeta) {
+         // A null archive read is not proof the entry is absent: retain that
+         // distinction instead of labeling I/O/extraction failures as missing.
+         TwoShip3dsTraceResourceFailure(identifier.Path.c_str(), "archive-load-null", "file-null; no-meta-alias");
+         SPDLOG_TRACE("Failed to load resource file at path {}", identifier.Path);
+-        // SoH-3DS: mResourceCache mutation MUST hold mMutex - the core-2 audio
+-        // thread loads synchronously while the game thread runs CheckCache and
+-        // the scene-eviction UnloadResources; an unlocked insert can rehash
+-        // under a concurrent locked find (heap corruption class).
+-        const std::lock_guard<std::mutex> lock(mMutex);
+-        mResourceCache[identifier] = ResourceLoadError::NotFound;
+-        return nullptr;
++        return PublishResourceLoad(identifier, nullptr, definitelyMissing);
+     }
+ #else
+     auto file = LoadFileProcess(identifier.Path);
+     if (file == nullptr && !mArchiveManager->HasFile(identifier.Path + ".meta")) {
+@@ -203,8 +200,13 @@
+ 
+     // Transform the raw data into a resource
+     auto resource = GetResourceLoader()->LoadResource(identifier.Path, file, initData);
+ 
++#ifdef __3DS__
++    // Recheck and publication must share ONE lock. A snapshot taken before
++    // the lock permits two simultaneous loads to publish different owners.
++    resource = PublishResourceLoad(identifier, std::move(resource), false);
++#else
+     // Another thread could have loaded the resource while we were processing, so we want to check before setting to
+     // the cache.
+     cachedResource = GetCachedResource(identifier, true);
+ 
+@@ -224,8 +226,10 @@
+             mResourceCache[identifier] = ResourceLoadError::NotFound;
+         }
+     }
+ 
++#endif
++
+     if (resource != nullptr) {
+         SPDLOG_TRACE("Loaded Resource {} on ResourceManager", identifier.Path);
+     } else {
+         SPDLOG_TRACE("Resource load FAILED {} on ResourceManager", identifier.Path);
+@@ -237,8 +241,42 @@
+ std::shared_ptr<IResource> ResourceManager::LoadResourceProcess(const std::string& filePath, bool loadExact,
+                                                                 std::shared_ptr<ResourceInitData> initData) {
+     return LoadResourceProcess({ filePath, mDefaultCacheOwner, mDefaultCacheArchive }, loadExact, initData);
+ }
++
++#ifdef __3DS__
++std::shared_ptr<IResource> ResourceManager::PublishResourceLoad(const ResourceIdentifier& identifier,
++                                                               std::shared_ptr<IResource> resource,
++                                                               bool definitelyMissing) {
++    // Keep the losing old value alive until the lock is released; resource
++    // destructors can re-enter the manager. Parameter destruction is also
++    // outside the lock when a simultaneous successful load wins.
++    std::shared_ptr<IResource> retired;
++    {
++        const std::lock_guard<std::mutex> lock(mMutex);
++        auto it = mResourceCache.find(identifier);
++        if (it != mResourceCache.end()) {
++            auto* current = std::get_if<std::shared_ptr<IResource>>(&it->second);
++            if (current != nullptr && *current != nullptr) {
++                if (!(*current)->IsDirty()) {
++                    return *current;
++                }
++                retired = *current;
++            }
++        }
++        if (resource != nullptr) {
++            if (it == mResourceCache.end()) {
++                mResourceCache.emplace(identifier, resource);
++            } else {
++                it->second = resource;
++            }
++        } else if (definitelyMissing && it == mResourceCache.end()) {
++            mResourceCache.emplace(identifier, ResourceLoadError::NotFound);
++        }
++    }
++    return resource;
++}
++#endif
+ 
+ std::shared_future<std::shared_ptr<IResource>>
+ ResourceManager::LoadResourceAsync(const ResourceIdentifier& identifier, bool loadExact, BS::priority_t priority,
+                                    std::shared_ptr<ResourceInitData> initData) {
+@@ -294,8 +332,9 @@
+     auto resource = LoadResourceProcess(identifier, loadExact, initData);
+ #else
+     auto resource = LoadResourceAsync(identifier, loadExact, BS::pr::highest, initData).get();
+ #endif
++
+     if (resource == nullptr) {
+         SPDLOG_TRACE("Failed to load resource file at path {}", identifier.Path);
+     }
+     return resource;
+@@ -622,8 +661,15 @@
+ void ResourceManager::Soh3dsCacheReport(char* out, unsigned size) {
+     // Bucket by the first path segment (objects/, scenes/, textures/, ...),
+     // counting total and sole-owned lines per bucket. Fixed table, no
+     // allocation: the archives have ~20 top-level directories.
++    if (out == nullptr || size == 0) {
++        return;
++    }
++    out[0] = '\0';
++    // Bucket names borrow cache-key storage. Hold the lock until formatting
++    // ends, not just while collecting the views (concurrent erase frees keys).
++    const std::lock_guard<std::mutex> lock(mMutex);
+     struct Bucket {
+         std::string_view name;
+         unsigned total;
+         unsigned free;
+@@ -631,9 +677,8 @@
+     std::array<Bucket, 24> buckets{};
+     size_t used = 0;
+ 
+     {
+-        const std::lock_guard<std::mutex> lock(mMutex);
+         for (const auto& [identifier, line] : mResourceCache) {
+             const std::string_view path = identifier.Path;
+             const size_t slash = path.find('/');
+             const std::string_view prefix = slash == std::string_view::npos ? path : path.substr(0, slash);
+diff --git a/third_party/libultraship/src/ship/utils/binarytools/MemoryStream.cpp b/third_party/libultraship/src/ship/utils/binarytools/MemoryStream.cpp
+--- a/third_party/libultraship/src/ship/utils/binarytools/MemoryStream.cpp
++++ b/third_party/libultraship/src/ship/utils/binarytools/MemoryStream.cpp
+@@ -1,10 +1,18 @@
+ #include "ship/utils/binarytools/MemoryStream.h"
+ #include <cstring>
++#include <limits>
++#include <stdexcept>
+ 
+-#ifndef _MSC_VER
+-#define memcpy_s(dest, destSize, source, sourceSize) memcpy(dest, source, destSize)
+-#endif
++namespace {
++// Check the entire range before allocating or copying. vector::at(start) alone
++// does not validate a multi-byte read. Subtraction avoids start+length overflow.
++void CheckReadRange(uint64_t position, size_t length, size_t size) {
++    if (position > size || length > size - static_cast<size_t>(position)) {
++        throw std::out_of_range("MemoryStream: read exceeds buffer");
++    }
++}
++} // namespace
+ 
+ Ship::MemoryStream::MemoryStream() {
+     mBuffer = std::make_shared<std::vector<char>>();
+     // mBuffer.reserve(1024 * 16);
+@@ -12,20 +20,31 @@
+     mBaseAddress = 0;
+ }
+ 
+ Ship::MemoryStream::MemoryStream(char* nBuffer, size_t nBufferSize) : MemoryStream() {
+-    mBuffer = std::make_shared<std::vector<char>>(nBuffer, nBuffer + nBufferSize);
++    if (nBufferSize != 0) {
++        if (nBuffer == nullptr) {
++            throw std::invalid_argument("MemoryStream: null source buffer");
++        }
++        mBuffer = std::make_shared<std::vector<char>>(nBuffer, nBuffer + nBufferSize);
++    }
+     mBufferSize = nBufferSize;
+     mBaseAddress = 0;
+ }
+ 
+ Ship::MemoryStream::MemoryStream(std::shared_ptr<std::vector<char>> buffer) : MemoryStream() {
++    if (buffer == nullptr) {
++        throw std::invalid_argument("MemoryStream: null shared buffer");
++    }
+     mBuffer = buffer;
+     mBufferSize = buffer->size();
+     mBaseAddress = 0;
+ }
+ 
+ Ship::MemoryStream::MemoryStream(std::shared_ptr<std::vector<char>> buffer, size_t offset) : MemoryStream() {
++    if (buffer == nullptr) {
++        throw std::invalid_argument("MemoryStream: null shared buffer");
++    }
+     mBuffer = buffer;
+     mBufferSize = buffer->size();
+     mBaseAddress = offset;
+ }
+@@ -47,42 +66,55 @@
+     }
+ }
+ 
+ std::unique_ptr<char[]> Ship::MemoryStream::Read(size_t length) {
+-    std::unique_ptr<char[]> result = std::make_unique<char[]>(length);
+-
+-    memcpy_s(result.get(), length, &mBuffer->at(mBaseAddress), length);
+-    mBaseAddress += length;
+-
++    CheckReadRange(mBaseAddress, length, mBuffer->size());
++    auto result = std::make_unique<char[]>(length);
++    Read(result.get(), length);
+     return result;
+ }
+ 
+ void Ship::MemoryStream::Read(char* dest, size_t length) {
+-    memcpy_s(dest, length, &mBuffer->at(mBaseAddress), length);
++    CheckReadRange(mBaseAddress, length, mBuffer->size());
++    if (length == 0) {
++        return; // An empty read at EOF does not dereference the buffer.
++    }
++    if (dest == nullptr) {
++        throw std::invalid_argument("MemoryStream: null read destination");
++    }
++    std::memcpy(dest, mBuffer->data() + mBaseAddress, length);
+     mBaseAddress += length;
+ }
+ 
+ int8_t Ship::MemoryStream::ReadByte() {
+-    return mBuffer->at(mBaseAddress++);
++    CheckReadRange(mBaseAddress, 1, mBuffer->size());
++    const auto value = mBuffer->at(static_cast<size_t>(mBaseAddress));
++    ++mBaseAddress; // A failed read must not consume input.
++    return value;
+ }
+ 
+ void Ship::MemoryStream::Write(char* srcBuffer, size_t length) {
+-    if (mBaseAddress + length >= mBuffer->size()) {
+-        mBuffer->resize(mBaseAddress + length);
+-        mBufferSize += length;
++    if (length == 0) {
++        return;
+     }
+-
+-    memcpy_s(&((*mBuffer)[mBaseAddress]), length, srcBuffer, length);
+-    mBaseAddress += length;
++    if (srcBuffer == nullptr) {
++        throw std::invalid_argument("MemoryStream: null write source");
++    }
++    if (mBaseAddress > mBuffer->max_size() || length > mBuffer->max_size() - mBaseAddress) {
++        throw std::length_error("MemoryStream: write size overflow");
++    }
++    const size_t end = static_cast<size_t>(mBaseAddress) + length;
++    if (end > mBuffer->size()) {
++        mBuffer->resize(end);
++    }
++    std::memcpy(mBuffer->data() + mBaseAddress, srcBuffer, length);
++    mBaseAddress = end;
++    mBufferSize = mBuffer->size();
+ }
+ 
+ void Ship::MemoryStream::WriteByte(int8_t value) {
+-    if (mBaseAddress >= mBuffer->size()) {
+-        mBuffer->resize(mBaseAddress + 1);
+-        mBufferSize = mBaseAddress;
+-    }
+-
+-    mBuffer->at(mBaseAddress++) = value;
++    char byte = static_cast<char>(value);
++    Write(&byte, 1);
+ }
+ 
+ std::vector<char> Ship::MemoryStream::ToVector() {
+     return *mBuffer;

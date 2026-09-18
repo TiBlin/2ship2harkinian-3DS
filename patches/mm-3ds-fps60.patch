@@ -1,0 +1,25 @@
+--- a/third_party/2ship/mm/2s2h/BenPort.cpp
++++ b/third_party/2ship/mm/2s2h/BenPort.cpp
+@@ -202,7 +202,12 @@
+                                 static_cast<int>(AudioChannelsSetting::audioStereo));
+     CVarSetInteger(CVAR_AUDIO_CHANNELS_SETTING, static_cast<int>(AudioChannelsSetting::audioStereo));
+     CVarRegisterInteger("gEnhancements.Camera.FreeLook.Enable", 1);
+-    CVarRegisterInteger("gInterpolationFPS", 20);
++    // FPS60 variant: select 60 at each 3DS launch, including when an older
++    // configuration saved 20/30. Only the render/interpolation CVar changes;
++    // R_UPDATE_RATE, the audio wakeup and the end-of-tick barrier stay intact.
++    // This setter does not save the configuration; lower rates remain usable
++    // during the session, and GetInterpolationFPS still caps the target at 60.
++    CVarSetInteger("gInterpolationFPS", 60);
+     CVarRegisterInteger("gMatchRefreshRate", 0);
+     CVarRegisterInteger("gEnhancements.Mods.AlternateAssets", 0);
+     CVarRegisterInteger(CVAR_MSAA_VALUE, 1);
+@@ -885,7 +890,7 @@
+ #ifdef __3DS__
+     // V7 paces a frame with an integer number of 60 Hz vblanks. Other rates
+     // (for example a desktop setting of 40) would change MM's game speed.
+-    const int32_t requested = CVarGetInteger("gMatchRefreshRate", 0) ? 60 : CVarGetInteger("gInterpolationFPS", 20);
++    const int32_t requested = CVarGetInteger("gMatchRefreshRate", 0) ? 60 : CVarGetInteger("gInterpolationFPS", 60);
+     return requested >= 60 ? 60 : requested >= 30 ? 30 : 20;
+ #else
+     if (CVarGetInteger("gMatchRefreshRate", 0)) {

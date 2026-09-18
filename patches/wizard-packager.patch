@@ -1,0 +1,162 @@
+--- a/scripts/package_3ds.py
++++ b/scripts/package_3ds.py
+@@ -105,23 +105,60 @@
+                      + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
+ 
+ 
+-def create_artwork(directory: Path, devkitpro: Path) -> tuple[Path, Path]:
++def checked_artwork(path: Path, kind: str) -> Path:
++    """Accept normalized PNGs or compiled artwork; never alter the input file."""
++    path = path.expanduser().resolve()
++    require(path.is_file(), f"Missing {kind}: {path}")
++    require(path.stat().st_size <= 16 * 1024 * 1024, f"{kind} exceeds 16 MiB")
++    data = path.read_bytes()
++    if path.suffix.lower() == ".png":
++        size = (48, 48) if kind == "icon" else (256, 128)
++        require(len(data) >= 33 and data[:8] == b"\x89PNG\r\n\x1a\n"
++                and data[12:16] == b"IHDR", f"Invalid {kind} PNG")
++        require(struct.unpack_from(">II", data, 16) == size,
++                f"{kind} must be a {size[0]}x{size[1]} PNG (the wizard resizes images)")
++    elif kind == "icon" and path.suffix.lower() == ".smdh":
++        require(len(data) == 0x36C0 and data[:4] == b"SMDH", "Invalid custom SMDH")
++    elif kind == "banner" and path.suffix.lower() in (".bnr", ".bin", ".banner"):
++        require(len(data) > 0x100 and data[:4] == b"CBMD", "Invalid custom CBMD banner")
++    else:
++        raise RuntimeError(f"Unsupported {kind} format: {path.suffix}")
++    return path
++
++
++def create_artwork(directory: Path, devkitpro: Path, icon_source: Path | None = None,
++                   banner_source: Path | None = None) -> tuple[Path, Path]:
+     directory.mkdir(parents=True, exist_ok=True)
+     icon_png, banner_png, audio = directory / "icon.png", directory / "banner.png", directory / "silence.wav"
+-    write_art_png(icon_png, 48, 48, "2S", "3DS", 4)
+-    write_art_png(banner_png, 256, 128, "2SHIP 3DS", "EXPERIMENTAL", 4)
++    icon_source = checked_artwork(icon_source, "icon") if icon_source else None
++    banner_source = checked_artwork(banner_source, "banner") if banner_source else None
++    if icon_source and icon_source.suffix.lower() == ".png":
++        shutil.copyfile(icon_source, icon_png)
++    else:
++        write_art_png(icon_png, 48, 48, "2S", "3DS", 4)
++    if banner_source and banner_source.suffix.lower() == ".png":
++        shutil.copyfile(banner_source, banner_png)
++    else:
++        write_art_png(banner_png, 256, 128, "2SHIP 3DS", "EXPERIMENTAL", 4)
+     with wave.open(str(audio), "wb") as stream:
+         stream.setparams((1, 2, 32000, 3200, "NONE", "not compressed"))
+         stream.writeframes(bytes(6400))
+     bannertool = find_tool("bannertool", devkitpro)
+     icon, banner = directory / "icon.smdh", directory / "banner.bnr"
+-    run([bannertool, "makesmdh", "-s", "2Ship 3DS", "-l", "2Ship 3DS - Experimental homebrew port",
+-         "-p", "2Ship-3DS community port", "-i", icon_png, "-r", "regionfree",
+-         "-f", "visible,allow3d,recordusage", "-o", icon])
+-    run([bannertool, "makebanner", "-i", banner_png, "-a", audio, "-o", banner])
++    if icon_source and icon_source.suffix.lower() == ".smdh":
++        shutil.copyfile(icon_source, icon)
++    else:
++        run([bannertool, "makesmdh", "-s", "2Ship 3DS", "-l", "2Ship 3DS - Experimental homebrew port",
++             "-p", "2Ship-3DS community port", "-i", icon_png, "-r", "regionfree",
++             "-f", "visible,allow3d,recordusage", "-o", icon])
++    if banner_source and banner_source.suffix.lower() != ".png":
++        shutil.copyfile(banner_source, banner)
++    else:
++        run([bannertool, "makebanner", "-i", banner_png, "-a", audio, "-o", banner])
+     smdh = icon.read_bytes()
+     require(len(smdh) == 0x36C0 and smdh[:4] == b"SMDH", "Invalid generated SMDH")
+-    require(b"2\x00S\x00h\x00i\x00p\x00" in smdh[:0x2000], "SMDH title is missing")
++    if not icon_source or icon_source.suffix.lower() != ".smdh":
++        require(b"2\x00S\x00h\x00i\x00p\x00" in smdh[:0x2000], "SMDH title is missing")
+     require(banner.stat().st_size > 0x100, "Generated banner is empty")
+     return icon, banner
+ 
+@@ -195,19 +232,21 @@
+             "smdh_embedded_in_3dsx": True, "hardware_tested": False}
+ 
+ 
+-def package(elf: Path, output: Path, devkitpro: Path) -> dict:
++def package(elf: Path, output: Path, devkitpro: Path, *, icon_source: Path | None = None,
++            banner_source: Path | None = None, with_cia: bool = True) -> dict:
+     elf, output, devkitpro = elf.expanduser().resolve(), output.expanduser().resolve(), devkitpro.expanduser().resolve()
+     require(elf.is_file(), f"Linked ELF missing: {elf}")
+     header = elf.read_bytes()[:52]
+     require(len(header) == 52 and header[:7] == b"\x7fELF\x01\x01\x01", "Input is not a 32-bit little-endian ELF")
+     require(struct.unpack_from("<HH", header, 16) == (2, 40), "Input must be a linked ARM executable")
+-    makerom, dsxtool = find_tool("makerom", devkitpro), find_tool("3dsxtool", devkitpro)
++    makerom = find_tool("makerom", devkitpro) if with_cia else None
++    dsxtool = find_tool("3dsxtool", devkitpro)
+     scratch = SOURCE_ROOT / "work"
+     scratch.mkdir(parents=True, exist_ok=True)
+     with tempfile.TemporaryDirectory(prefix="package-", dir=scratch) as temporary:
+         stage = Path(temporary).resolve()
+         require(stage.is_relative_to(scratch.resolve()), "Packaging temporary directory is outside source work/")
+-        icon, banner = create_artwork(stage / "artwork", devkitpro)
++        icon, banner = create_artwork(stage / "artwork", devkitpro, icon_source, banner_source)
+         romfs = stage / "romfs"
+         romfs.mkdir()
+         (romfs / "README.txt").write_text("2Ship 3DS experimental port. Runtime archives: sdmc:/3ds/2ship/\n"
+@@ -218,21 +257,32 @@
+         (ready / "SD/cias").mkdir()
+         three_dsx, cia, cci = sd / f"{NAME}.3dsx", ready / f"SD/cias/{NAME}.cia", ready / f"{NAME}.3ds"
+         run([dsxtool, elf, three_dsx, f"--smdh={icon}", f"--romfs={romfs}"])
+-        rsf = SOURCE_ROOT / "platform/3ds/cia/app.rsf"
+-        rsf_text = rsf.read_text(encoding="utf-8")
+-        require(re.search(r"UniqueId\s*:\s*0x25348\b", rsf_text) is not None, "RSF UniqueId mismatch")
+-        cart_text, substitutions = re.subn(r"(?m)^(\s*UseOnSD\s*:\s*)true\b", r"\g<1>false", rsf_text)
+-        require(substitutions == 1, "RSF must contain one UseOnSD: true flag")
+-        cart_rsf = stage / "cartridge.rsf"
+-        cart_rsf.write_text(cart_text, encoding="utf-8")
+-        for fmt, target, descriptor in (("cia", cia, rsf), ("cci", cci, cart_rsf)):
+-            run([makerom, "-f", fmt, "-o", target, "-elf", elf, "-rsf", descriptor,
+-                 "-icon", icon, "-banner", banner, f"-DROMFS_ROOT={romfs.as_posix()}", "-target", "t", "-exefslogo"])
+-        validation = validate_packages(three_dsx, cia, cci, icon, banner)
++        if with_cia:
++            rsf = SOURCE_ROOT / "platform/3ds/cia/app.rsf"
++            rsf_text = rsf.read_text(encoding="utf-8")
++            require(re.search(r"UniqueId\s*:\s*0x25348\b", rsf_text) is not None, "RSF UniqueId mismatch")
++            cart_text, substitutions = re.subn(r"(?m)^(\s*UseOnSD\s*:\s*)true\b", r"\g<1>false", rsf_text)
++            require(substitutions == 1, "RSF must contain one UseOnSD: true flag")
++            cart_rsf = stage / "cartridge.rsf"
++            cart_rsf.write_text(cart_text, encoding="utf-8")
++            for fmt, target, descriptor in (("cia", cia, rsf), ("cci", cci, cart_rsf)):
++                run([makerom, "-f", fmt, "-o", target, "-elf", elf, "-rsf", descriptor,
++                     "-icon", icon, "-banner", banner, f"-DROMFS_ROOT={romfs.as_posix()}", "-target", "t", "-exefslogo"])
++            validation = validate_packages(three_dsx, cia, cci, icon, banner)
++        else:
++            dsx = three_dsx.read_bytes()
++            require(dsx[:4] == b"3DSX" and icon.read_bytes() in dsx,
++                    "3DSX header or embedded SMDH missing")
++            validation = {"smdh_embedded_in_3dsx": True, "cia_generated": False,
++                          "hardware_tested": False}
+         shutil.copyfile(icon, sd / f"{NAME}.smdh")
+         shutil.copyfile(elf, ready / f"{NAME}.elf")
+         manifest = {"name": "2Ship 3DS experimental", "elf_sha256": sha256(elf), "validation": validation,
+-                    "artwork": "Original procedural typography and rectangles; silent banner audio",
++                    "artwork": ("User-supplied artwork; original defaults used for empty selections" if icon_source or banner_source
++                                else "Original procedural typography and rectangles; silent banner audio"),
++                    "artwork_details": {"icon": {"custom": bool(icon_source), "sha256": sha256(icon)},
++                                "banner": {"custom": bool(banner_source), "sha256": sha256(banner)},
++                                "note": "Defaults are original procedural art; custom files are user supplied."},
+                     "game_assets_bundled": False, "files": []}
+         for file in sorted(ready.rglob("*")):
+             if file.is_file():
+@@ -253,14 +303,18 @@
+     parser.add_argument("--output", type=Path, required=True)
+     parser.add_argument("--devkitpro", type=Path, default=default_devkitpro())
+     parser.add_argument("--artwork-only", action="store_true", help="Generate and validate original artwork without requiring an ELF")
++    parser.add_argument("--icon", type=Path, help="48x48 PNG or compiled SMDH")
++    parser.add_argument("--banner", type=Path, help="256x128 PNG or compiled CBMD banner")
++    parser.add_argument("--no-cia", action="store_true", help="Produce only 3DSX/SMDH/ELF; skip CIA and CCI")
+     args = parser.parse_args()
+     if not args.artwork_only and args.elf is None:
+         parser.error("--elf is required unless --artwork-only is set")
+     try:
+         if args.artwork_only:
+-            create_artwork(args.output.resolve(), args.devkitpro.resolve())
++            create_artwork(args.output.resolve(), args.devkitpro.resolve(), args.icon, args.banner)
+         else:
+-            package(args.elf, args.output, args.devkitpro)
++            package(args.elf, args.output, args.devkitpro, icon_source=args.icon,
++                    banner_source=args.banner, with_cia=not args.no_cia)
+     except (RuntimeError, OSError, subprocess.CalledProcessError, struct.error) as error:
+         print(f"2Ship-3DS packaging failed: {error}")
+         return 1

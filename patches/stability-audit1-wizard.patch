@@ -1,0 +1,28 @@
+diff --git a/Wizard-2Ship3DS.ps1 b/Wizard-2Ship3DS.ps1
+--- a/Wizard-2Ship3DS.ps1
++++ b/Wizard-2Ship3DS.ps1
+@@ -324,9 +324,9 @@
+ }
+ 
+ try {
+     $script:Form = [Windows.Forms.Form]::new()
+-    $script:Form.Text = '2Ship3DS | Wizard AUDIO-FIX v1.0.3-FPS60-AUTO'
++    $script:Form.Text = '2Ship3DS | Wizard AUDIO-FIX v1.0.4-STABILITY-AUDIT1'
+     $script:Form.ClientSize = [Drawing.Size]::new(1000, 735)
+     $script:Form.MinimumSize = [Drawing.Size]::new(1016, 620)
+     $script:Form.StartPosition = 'CenterScreen'
+     $script:Form.AutoScaleMode = 'Font'
+diff --git a/wizard/build_wizard.py b/wizard/build_wizard.py
+--- a/wizard/build_wizard.py
++++ b/wizard/build_wizard.py
+@@ -28,9 +28,9 @@
+ from build_lus_3ds import build_environment
+ import package_3ds as packager
+ from prepare_support import ADDITIONS
+ 
+-VERSION = "1.0.3-FPS60-AUTO"
++VERSION = "1.0.4-STABILITY-AUDIT1"
+ PLAYBACK = "third_party/2ship/mm/src/audio/lib/playback.c"
+ EXPECTED_PLAYBACK_SHA256 = "e462a5e0d6bb641e768f692c5c3f6da1ee306bdf6c5fb06b5ecb6605a24e0b18"
+ BLOCK = 1024 * 1024
+ 
