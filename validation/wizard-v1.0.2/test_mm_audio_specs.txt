@@ -1,0 +1,5 @@
+$ /opt/pyvenv/bin/python tests/test_mm_audio_specs.py
+PASS: desktop policy preserved; reproduces 4 oversized spec0x13 splits
+PASS: native 21 specs, 84 real splits fit 208-sample DMEM; exact 32000 Hz
+
+exit_code=0

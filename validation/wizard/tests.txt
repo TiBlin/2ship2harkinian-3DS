@@ -1,0 +1,145 @@
+2Ship3DS wizard v1.0.0 — host validation
+Environment: Linux; Python 3.13.5
+NOT tested: Windows GUI / Windows PowerShell execution / ARM game compilation / New 3DS hardware.
+
+=== tests/test_build_wizard.py ===
+
+test_archive_cancellation (__main__.ArchiveTests.test_archive_cancellation) ... ok
+test_crc_corruption_detected (__main__.ArchiveTests.test_crc_corruption_detected) ... ok
+test_duplicate_rejected (__main__.ArchiveTests.test_duplicate_rejected) ... ok
+test_invalid_metadata (__main__.ArchiveTests.test_invalid_metadata) ... ok
+test_little_endian (__main__.ArchiveTests.test_little_endian) ... ok
+test_metadata_only_does_not_claim_crc (__main__.ArchiveTests.test_metadata_only_does_not_claim_crc) ... ok
+test_mm_major_version_rule (__main__.ArchiveTests.test_mm_major_version_rule) ... ok
+test_other_major_rejected (__main__.ArchiveTests.test_other_major_rejected) ... ok
+test_otr_name_rejected (__main__.ArchiveTests.test_otr_name_rejected) ... ok
+test_renamed_rom_rejected (__main__.ArchiveTests.test_renamed_rom_rejected) ... ok
+test_support_expected_version_and_additions (__main__.ArchiveTests.test_support_expected_version_and_additions) ... ok
+test_support_full_version (__main__.ArchiveTests.test_support_full_version) ... ok
+test_support_missing_additions_warning (__main__.ArchiveTests.test_support_missing_additions_warning) ... ok
+test_backups_keep_objects (__main__.CacheTests.test_backups_keep_objects) ... ok
+test_correct_cache_resumes (__main__.CacheTests.test_correct_cache_resumes) ... ok
+test_different_sdk_rejected (__main__.CacheTests.test_different_sdk_rejected) ... ok
+test_moved_cache_rejected (__main__.CacheTests.test_moved_cache_rejected) ... ok
+test_other_generator_rejected (__main__.CacheTests.test_other_generator_rejected) ... ok
+test_partial_cache_requires_clean (__main__.CacheTests.test_partial_cache_requires_clean) ... ok
+test_project_lock_and_recovery (__main__.CacheTests.test_project_lock_and_recovery) ... ok
+test_symlink_cache_refused (__main__.CacheTests.test_symlink_cache_refused) ... ok
+test_bom_and_unicode_path (__main__.ConfigTests.test_bom_and_unicode_path) ... ok
+test_empty_output (__main__.ConfigTests.test_empty_output) ... ok
+test_invalid_bool (__main__.ConfigTests.test_invalid_bool) ... ok
+test_invalid_mode (__main__.ConfigTests.test_invalid_mode) ... ok
+test_job_bounds_and_types (__main__.ConfigTests.test_job_bounds_and_types) ... ok
+test_audio_fix_present_and_identical (__main__.CopyAndAudioTests.test_audio_fix_present_and_identical) ... ok
+test_checked_copy_keeps_source (__main__.CopyAndAudioTests.test_checked_copy_keeps_source) ... ok
+test_copy_rejects_source_mutation (__main__.CopyAndAudioTests.test_copy_rejects_source_mutation) ... ok
+test_copy_to_self_refused (__main__.CopyAndAudioTests.test_copy_to_self_refused) ... ok
+test_copy_will_not_overwrite_existing_file (__main__.CopyAndAudioTests.test_copy_will_not_overwrite_existing_file) ... ok
+test_old_guard_rejected (__main__.CopyAndAudioTests.test_old_guard_rejected) ... ok
+test_bad_png_rejected (__main__.PackagingTests.test_bad_png_rejected) ... ok
+test_compiled_artwork_validation (__main__.PackagingTests.test_compiled_artwork_validation) ... ok
+test_no_cia_never_invokes_makerom_and_embeds_smdh (__main__.PackagingTests.test_no_cia_never_invokes_makerom_and_embeds_smdh) ... ok
+test_png_dimensions (__main__.PackagingTests.test_png_dimensions) ... ok
+test_failed_build_never_publishes_ready_folder (__main__.PipelineTests.test_failed_build_never_publishes_ready_folder) ... ok
+test_pipeline_stages_without_overwriting_old_result (__main__.PipelineTests.test_pipeline_stages_without_overwriting_old_result) ... ok
+test_preflight_standard_citro3d_location (__main__.PipelineTests.test_preflight_standard_citro3d_location) ... ok
+test_json_status_is_readable (__main__.ProcessTests.test_json_status_is_readable) ... ok
+test_marker_cancels_before_process_starts (__main__.ProcessTests.test_marker_cancels_before_process_starts) ... ok
+test_subprocess_failure_is_not_retried (__main__.ProcessTests.test_subprocess_failure_is_not_retried) ... ok
+test_timeout_terminates_child (__main__.ProcessTests.test_timeout_terminates_child) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 1.033s
+
+OK
+
+EXIT CODE: 0
+
+=== tests/test_wizard_artwork.py ===
+Packaging: bannertool
+[INFO] Created SMDH "/tmp/2ship-artwork-ndfhr4m8/defaults/icon.smdh".
+Packaging: bannertool
+[INFO] Created banner "/tmp/2ship-artwork-ndfhr4m8/defaults/banner.bnr".
+Packaging: bannertool
+[INFO] Created SMDH "/tmp/2ship-artwork-ndfhr4m8/custom/icon.smdh".
+Packaging: bannertool
+[INFO] Created banner "/tmp/2ship-artwork-ndfhr4m8/custom/banner.bnr".
+PASS: real custom PNG -> SMDH/CBMD; source images unchanged
+PASS: compiled SMDH/CBMD preserved byte-for-byte
+No GUI, ARM game build, or hardware validation is implied.
+
+
+EXIT CODE: 0
+
+=== tests/test_mm_3ds_timing_audio.py ===
+PASS: 24 FPS cases; null/native per-tick bounds, idle exclusion, blocking barrier, 32000 Hz cadence
+
+
+EXIT CODE: 0
+
+=== tests/test_mm_audio_specs.py ===
+PASS: desktop policy preserved; reproduces 4 oversized spec0x13 splits
+PASS: native 21 specs, 84 real splits fit 208-sample DMEM; exact 32000 Hz
+
+
+EXIT CODE: 0
+
+=== tests/test_mm_adpcm_boundaries.py ===
+PASS: desktop control reproduces V8 DMEM address61216/count3904
+PASS: 480 native ADPCM boundary cases; looping, oneshot, normal offsets fit DMEM
+
+
+EXIT CODE: 0
+
+=== tests/test_mm_mixer_effects.py ===
+PASS: 77 PCM gain vectors with whole-DMEM canaries; 5 MM no-op boundaries; legacy controls fail safely
+
+
+EXIT CODE: 0
+
+=== tests/test_mm_note_address_gate.py . --require-fixed ===
+Source SHA256: e462a5e0d6bb641e768f692c5c3f6da1ee306bdf6c5fb06b5ecb6605a24e0b18
+Production guard: fixed
+original_3ds_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+original_3ds_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+original_3ds_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_3ds_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+fixed_guard_3ds_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+fixed_guard_3ds_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+original_wiiu_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+original_wiiu_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+original_wiiu_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_wiiu_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+fixed_guard_wiiu_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+fixed_guard_wiiu_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+original_other_platform_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+original_other_platform_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+original_other_platform_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_other_platform_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+fixed_guard_other_platform_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+fixed_guard_other_platform_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+PASS: actual ProcessNotes control flow; low-address active/repeated/release cases; no PCM/hardware claim.
+
+
+EXIT CODE: 0
+
+=== Additional real artwork comparison against ORIGINAL packager ===
+Packaging: bannertool
+[INFO] Created SMDH "/mnt/data/wizard_work/testing/original-art/icon.smdh".
+Packaging: bannertool
+[INFO] Created banner "/mnt/data/wizard_work/testing/original-art/banner.bnr".
+Packaging: bannertool
+[INFO] Created SMDH "/mnt/data/wizard_work/testing/updated-art/icon.smdh".
+Packaging: bannertool
+[INFO] Created banner "/mnt/data/wizard_work/testing/updated-art/banner.bnr".
+PASS: default icon/banner byte-for-byte identical to original packager.
+Packaging: bannertool
+[INFO] Created SMDH "/mnt/data/wizard_work/testing/custom-art/icon.smdh".
+Packaging: bannertool
+[INFO] Created banner "/mnt/data/wizard_work/testing/custom-art/banner.bnr".
+PASS: real bundled Linux bannertool created changed artwork from custom PNGs; inputs unchanged.
+PASS: compiled SMDH/CBMD copied verbatim.
+No Windows GUI, ARM game build, or hardware validation performed.
+
+PowerShell: lexical string/delimiter balance checked; this is NOT parsing or execution.
+PowerShell argument SelfTest included but NOT executed (PowerShell is unavailable here).

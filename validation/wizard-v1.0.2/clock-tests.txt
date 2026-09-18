@@ -1,0 +1,20 @@
+test_all_cache_paths_validated_before_moving_first (__main__.ClockTests.test_all_cache_paths_validated_before_moving_first) ... ok
+test_both_old_caches_are_preserved_before_repair (__main__.ClockTests.test_both_old_caches_are_preserved_before_repair) ... ok
+test_build_lus_checks_clock_then_configures_then_checks_manifest (__main__.ClockTests.test_build_lus_checks_clock_then_configures_then_checks_manifest) ... ok
+test_cloud_reparse_points_not_confused_with_junctions (__main__.ClockTests.test_cloud_reparse_points_not_confused_with_junctions) ... ok
+test_gate_missing_ninja_fails_clearly (__main__.ClockTests.test_gate_missing_ninja_fails_clearly) ... ok
+test_gate_timeout_is_bounded (__main__.ClockTests.test_gate_timeout_is_bounded) ... ok
+test_linked_cache_is_rejected_before_timestamp_repair (__main__.ClockTests.test_linked_cache_is_rejected_before_timestamp_repair) ... ok
+test_noop_preserves_existing_cache_location (__main__.ClockTests.test_noop_preserves_existing_cache_location) ... ok
+test_past_timestamps_not_touched (__main__.ClockTests.test_past_timestamps_not_touched) ... ok
+test_repairs_future_inputs_without_byte_changes (__main__.ClockTests.test_repairs_future_inputs_without_byte_changes) ... ok
+test_sdk_archives_saves_and_backups_are_not_touched (__main__.ClockTests.test_sdk_archives_saves_and_backups_are_not_touched) ... ok
+test_second_run_is_noop (__main__.ClockTests.test_second_run_is_noop) ... ok
+test_source_symlinks_are_not_followed (__main__.ClockTests.test_source_symlinks_are_not_followed) ... ok
+test_real_gate_reports_external_future_input_without_mutating_it (__main__.RealNinjaTests.test_real_gate_reports_external_future_input_without_mutating_it) ... ok
+test_real_historical_100_regeneration_loop_then_fixed_compilation (__main__.RealNinjaTests.test_real_historical_100_regeneration_loop_then_fixed_compilation) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 3.103s
+
+OK

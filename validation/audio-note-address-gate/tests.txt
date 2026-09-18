@@ -1,0 +1,91 @@
+2Ship3DS V2 - audio note-address gate - host validation
+No ARM compilation, emulator execution, or physical-console audio verification.
+The expected original --require-fixed failure is a passing negative-control check.
+Compiler: g++ (Debian 14.2.0-19) 14.2.0
+Only production file changed: third_party/2ship/mm/src/audio/lib/playback.c
+Original SHA256: 5d220233ab43f2d75831c81ce4ac7f05521579034f6d7676ab3a66838e48694a
+Patched SHA256:  e462a5e0d6bb641e768f692c5c3f6da1ee306bdf6c5fb06b5ecb6605a24e0b18
+
+=== original-reproduction ===
+$ /opt/pyvenv/bin/python tests/test_mm_note_address_gate.py /mnt/data/audio_fix_work/2Ship3DS
+Source SHA256: 5d220233ab43f2d75831c81ce4ac7f05521579034f6d7676ab3a66838e48694a
+Production guard: BROKEN (reproduction mode)
+original_3ds_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+original_3ds_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+original_3ds_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_3ds_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+fixed_guard_3ds_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+fixed_guard_3ds_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+original_wiiu_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+original_wiiu_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+original_wiiu_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_wiiu_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+fixed_guard_wiiu_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+fixed_guard_wiiu_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+original_other_platform_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+original_other_platform_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+original_other_platform_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_other_platform_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+fixed_guard_other_platform_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+fixed_guard_other_platform_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+PASS: actual ProcessNotes control flow; low-address active/repeated/release cases; no PCM/hardware claim.
+
+Exit code: 0 (expected: 0)
+
+=== original-require-fixed-expected-failure ===
+$ /opt/pyvenv/bin/python tests/test_mm_note_address_gate.py /mnt/data/audio_fix_work/2Ship3DS --require-fixed
+FAIL: production __3DS__ still excludes valid low-address notes
+
+Exit code: 1 (expected: 1)
+
+=== fixed-require-fixed ===
+$ /opt/pyvenv/bin/python tests/test_mm_note_address_gate.py /mnt/data/audio_fix_work/2Ship3DS --require-fixed
+Source SHA256: e462a5e0d6bb641e768f692c5c3f6da1ee306bdf6c5fb06b5ecb6605a24e0b18
+Production guard: fixed
+original_3ds_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+original_3ds_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+original_3ds_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_3ds_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+fixed_guard_3ds_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+fixed_guard_3ds_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+original_wiiu_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+original_wiiu_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+original_wiiu_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_wiiu_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+fixed_guard_wiiu_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+fixed_guard_wiiu_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+original_other_platform_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+original_other_platform_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+original_other_platform_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_other_platform_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+fixed_guard_other_platform_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+fixed_guard_other_platform_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+PASS: actual ProcessNotes control flow; low-address active/repeated/release cases; no PCM/hardware claim.
+
+Exit code: 0 (expected: 0)
+
+=== test_mm_3ds_timing_audio ===
+$ /opt/pyvenv/bin/python tests/test_mm_3ds_timing_audio.py
+PASS: 24 FPS cases; null/native per-tick bounds, idle exclusion, blocking barrier, 32000 Hz cadence
+
+Exit code: 0 (expected: 0)
+
+=== test_mm_audio_specs ===
+$ /opt/pyvenv/bin/python tests/test_mm_audio_specs.py
+PASS: desktop policy preserved; reproduces 4 oversized spec0x13 splits
+PASS: native 21 specs, 84 real splits fit 208-sample DMEM; exact 32000 Hz
+
+Exit code: 0 (expected: 0)
+
+=== test_mm_adpcm_boundaries ===
+$ /opt/pyvenv/bin/python tests/test_mm_adpcm_boundaries.py
+PASS: desktop control reproduces V8 DMEM address61216/count3904
+PASS: 480 native ADPCM boundary cases; looping, oneshot, normal offsets fit DMEM
+
+Exit code: 0 (expected: 0)
+
+=== test_mm_mixer_effects ===
+$ /opt/pyvenv/bin/python tests/test_mm_mixer_effects.py
+PASS: 77 PCM gain vectors with whole-DMEM canaries; 5 MM no-op boundaries; legacy controls fail safely
+
+Exit code: 0 (expected: 0)

@@ -1,0 +1,44 @@
+[
+  {
+    "test": "auto-frameskip",
+    "returncode": 0
+  },
+  {
+    "test": "nominal-fps60",
+    "returncode": 0
+  },
+  {
+    "test": "timing-audio",
+    "returncode": 0
+  },
+  {
+    "test": "audio-specs",
+    "returncode": 0
+  },
+  {
+    "test": "adpcm-boundaries",
+    "returncode": 0
+  },
+  {
+    "test": "mixer-effects",
+    "returncode": 0
+  },
+  {
+    "test": "note-address-gate",
+    "returncode": 0
+  },
+  {
+    "test": "wizard",
+    "returncode": 0
+  },
+  {
+    "test": "build-clock",
+    "returncode": 0
+  },
+  {
+    "test": "negative-control-no-skip",
+    "observed_returncode": 1,
+    "expected": "failure at actual skip assertion",
+    "pass": true
+  }
+]

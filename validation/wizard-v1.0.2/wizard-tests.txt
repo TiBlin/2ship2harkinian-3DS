@@ -1,0 +1,48 @@
+test_archive_cancellation (__main__.ArchiveTests.test_archive_cancellation) ... ok
+test_crc_corruption_detected (__main__.ArchiveTests.test_crc_corruption_detected) ... ok
+test_duplicate_rejected (__main__.ArchiveTests.test_duplicate_rejected) ... ok
+test_invalid_metadata (__main__.ArchiveTests.test_invalid_metadata) ... ok
+test_little_endian (__main__.ArchiveTests.test_little_endian) ... ok
+test_metadata_only_does_not_claim_crc (__main__.ArchiveTests.test_metadata_only_does_not_claim_crc) ... ok
+test_mm_major_version_rule (__main__.ArchiveTests.test_mm_major_version_rule) ... ok
+test_other_major_rejected (__main__.ArchiveTests.test_other_major_rejected) ... ok
+test_otr_name_rejected (__main__.ArchiveTests.test_otr_name_rejected) ... ok
+test_renamed_rom_rejected (__main__.ArchiveTests.test_renamed_rom_rejected) ... ok
+test_support_expected_version_and_additions (__main__.ArchiveTests.test_support_expected_version_and_additions) ... ok
+test_support_full_version (__main__.ArchiveTests.test_support_full_version) ... ok
+test_support_missing_additions_warning (__main__.ArchiveTests.test_support_missing_additions_warning) ... ok
+test_backups_keep_objects (__main__.CacheTests.test_backups_keep_objects) ... ok
+test_correct_cache_resumes (__main__.CacheTests.test_correct_cache_resumes) ... ok
+test_different_sdk_rejected (__main__.CacheTests.test_different_sdk_rejected) ... ok
+test_moved_cache_rejected (__main__.CacheTests.test_moved_cache_rejected) ... ok
+test_other_generator_rejected (__main__.CacheTests.test_other_generator_rejected) ... ok
+test_partial_cache_requires_clean (__main__.CacheTests.test_partial_cache_requires_clean) ... ok
+test_project_lock_and_recovery (__main__.CacheTests.test_project_lock_and_recovery) ... ok
+test_symlink_cache_refused (__main__.CacheTests.test_symlink_cache_refused) ... ok
+test_bom_and_unicode_path (__main__.ConfigTests.test_bom_and_unicode_path) ... ok
+test_empty_output (__main__.ConfigTests.test_empty_output) ... ok
+test_invalid_bool (__main__.ConfigTests.test_invalid_bool) ... ok
+test_invalid_mode (__main__.ConfigTests.test_invalid_mode) ... ok
+test_job_bounds_and_types (__main__.ConfigTests.test_job_bounds_and_types) ... ok
+test_audio_fix_present_and_identical (__main__.CopyAndAudioTests.test_audio_fix_present_and_identical) ... ok
+test_checked_copy_keeps_source (__main__.CopyAndAudioTests.test_checked_copy_keeps_source) ... ok
+test_copy_rejects_source_mutation (__main__.CopyAndAudioTests.test_copy_rejects_source_mutation) ... ok
+test_copy_to_self_refused (__main__.CopyAndAudioTests.test_copy_to_self_refused) ... ok
+test_copy_will_not_overwrite_existing_file (__main__.CopyAndAudioTests.test_copy_will_not_overwrite_existing_file) ... ok
+test_old_guard_rejected (__main__.CopyAndAudioTests.test_old_guard_rejected) ... ok
+test_bad_png_rejected (__main__.PackagingTests.test_bad_png_rejected) ... ok
+test_compiled_artwork_validation (__main__.PackagingTests.test_compiled_artwork_validation) ... ok
+test_no_cia_never_invokes_makerom_and_embeds_smdh (__main__.PackagingTests.test_no_cia_never_invokes_makerom_and_embeds_smdh) ... ok
+test_png_dimensions (__main__.PackagingTests.test_png_dimensions) ... ok
+test_failed_build_never_publishes_ready_folder (__main__.PipelineTests.test_failed_build_never_publishes_ready_folder) ... ok
+test_pipeline_stages_without_overwriting_old_result (__main__.PipelineTests.test_pipeline_stages_without_overwriting_old_result) ... ok
+test_preflight_standard_citro3d_location (__main__.PipelineTests.test_preflight_standard_citro3d_location) ... ok
+test_json_status_is_readable (__main__.ProcessTests.test_json_status_is_readable) ... ok
+test_marker_cancels_before_process_starts (__main__.ProcessTests.test_marker_cancels_before_process_starts) ... ok
+test_subprocess_failure_is_not_retried (__main__.ProcessTests.test_subprocess_failure_is_not_retried) ... ok
+test_timeout_terminates_child (__main__.ProcessTests.test_timeout_terminates_child) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 1.032s
+
+OK

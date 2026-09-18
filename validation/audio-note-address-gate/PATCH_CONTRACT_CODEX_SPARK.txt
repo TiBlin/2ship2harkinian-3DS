@@ -1,0 +1,174 @@
+=== PATCH CONTRACT FOR CODEX-SPARK ===
+
+ROOT CAUSE:
+Le chemin __3DS__ de AudioPlayback_ProcessNotes conserve un filtre d'adresse
+N64 : parentLayer < 0x7FFFFFFF provoque continue. Une SequenceLayer native
+valide, stockée dans gAudioCtx.sequenceLayers, est donc exclue. Le filtre
+saute ADSR, vibrato/portamento et AudioPlayback_InitSampleState. Ensuite
+AudioSynth_SyncSampleStates efface note.sampleState.needsInit, sans que ce
+signal ait été transmis à sampleStateList. Les notes actives peuvent rester
+muettes ou utiliser un état périmé; les notes détachées NO_LAYER suivent un
+autre chemin. Défaut confirmé dans le code et par reproduction hôte. Son
+importance exacte dans le son de la console reste à valider matériellement.
+
+Un mécanisme indépendant de coupures existe : OTRAudio_Thread produit un
+nombre fixe de blocs 528/544 par réveil graphique, sans régulation de la file.
+Ne pas prétendre que des underruns réels ont été mesurés. Ne pas modifier
+l'ordonnanceur dans le même correctif que le filtre d'adresse.
+
+EVIDENCE:
+Archive SHA256:
+1806cc31f4d7f881934fe2efeaad37fba1ee71c8d41d00409ea8ca898234f4c0
+Chemins ci-dessous relatifs à 2Ship3DS/.
+- third_party/2ship/mm/src/audio/lib/playback.c:198-206 : filtre fautif.
+- Même fichier:283-347 : mises à jour sautées, notamment InitSampleState.
+- Même fichier:14-37,125-145 : copie d'état et fréquence Q15.
+- Même fichier:568-576 : détachement parentLayer=NO_LAYER.
+- third_party/2ship/mm/src/audio/lib/synthesis.c:199-230 : Sync après ProcessNotes
+  et effacement de needsInit.
+- third_party/2ship/mm/src/code/stubs.c:40 : définition native de gAudioCtx.
+- third_party/2ship/mm/include/z64audio.h:20,644 : NO_LAYER et tableau de couches.
+- third_party/2ship/mm/src/audio/lib/seqplayer.c:515-526,2207-2221 : provenance
+  des pointeurs valides et appel réel de ProcessNotes.
+- Reproduction hôte fournie : une véritable adresse basse 0x404060 est sautée;
+  ADSR/vibrato/InitSampleState=0; après changement de la seule garde, chacun=1.
+  Sync consomme needsInit dans les deux cas, mais seul le cas corrigé conserve
+  ce signal dans l'état destiné à la synthèse. Contrôle NO_LAYER inchangé.
+- Ce test extrait ProcessNotes et Sync depuis les sources réelles. Les autres
+  fonctions sont des doubles explicites : ce n'est PAS une validation PCM/ARM.
+- third_party/2ship/mm/2s2h/BenPort.cpp:932-956 : production exclusivement pilotée
+  par les réveils; DesiredBuffered=2048 n'y est jamais consulté.
+- third_party/libultraship/src/ship/audio/NdspAudioPlayer.cpp:237-275 : format
+  correct, copie puis flush puis soumission; perte de bloc si le pool est plein.
+
+FILES TO MODIFY:
+Correctif obligatoire :
+- third_party/2ship/mm/src/audio/lib/playback.c
+Test de non-régression à ajouter :
+- tests/test_mm_note_address_gate.py
+  Partir de test_note_address_gate.py fourni; lancer avec la racine du projet
+  et --require-fixed. Ne pas neutraliser le contrôle négatif historique.
+Instrumentation SEULEMENT, dans un changement séparé et désactivable :
+- third_party/2ship/mm/2s2h/BenPort.cpp
+- third_party/libultraship/src/ship/audio/NdspAudioPlayer.cpp
+- third_party/2ship/mm/src/audio/lib/playback.c
+Optionnel pour compter la saturation interne, sans modifier ses calculs :
+- third_party/2ship/mm/2s2h/mixer.c
+
+FUNCTIONS TO MODIFY:
+Obligatoire : AudioPlayback_ProcessNotes.
+Instrumentation séparée :
+- OTRAudio_Init : résultat et cœur réellement retenus pour le thread.
+- OTRAudio_Thread : horodatages, cadence, frames, occupation, durée de synthèse.
+- NdspAudioPlayer::DoInit : configuration, pointeurs et capacités.
+- NdspAudioPlayer::Buffered : états et positions, avec cohérence de snapshot.
+- NdspAudioPlayer::DoPlay : unités, retours du flush, frames soumises/perdues.
+- AudioPlayback_ProcessNotes : notes attachées, candidates au vieux filtre,
+  mises à jour effectivement effectuées.
+Optionnel : clamp16 dans mixer.c, compteur de dépassements AVANT saturation.
+
+REQUIRED CHANGES:
+1. Dans AudioPlayback_ProcessNotes uniquement, remplacer la garde entourant
+   le test d'adresse :
+   #ifndef __WIIU__
+   par :
+   #if !defined(__WIIU__) && !defined(__3DS__)
+   Actualiser le commentaire pour expliquer que les adresses N64 ne constituent
+   pas une validation de pointeur natif. Ne changer aucun seuil, ne modifier
+   aucun pointeur, ne modifier ni les corps de notes ni les autres plateformes.
+2. Ajouter le test hôte fourni. L'option --require-fixed doit échouer avec
+   l'archive originale et réussir après le changement. Le contrôle historique
+   doit encore reproduire zéro mise à jour pour une couche basse valide.
+3. Relancer les quatre tests audio existants. Ne pas supprimer ni réécrire
+   leurs assertions pour rendre un changement d'ordonnancement acceptable.
+4. Pour l'instrumentation séparée : conserver le format, la cadence et les
+   allocations de production. Compteurs bornés/préalloués, pas de printf ni
+   d'écriture SD par bloc. Relever au minimum :
+   - timestamp du réveil/début/fin de synthèse/soumission;
+   - R_UPDATE_RATE, frames produites, octets, Buffered avant/après;
+   - FREE/QUEUED/PLAYING/DONE, sequence_id, nsamples et samplePos;
+   - frames produites/soumises/terminées/perdues, nombre de slots libres;
+   - code Result exact du flush, taille et adresse;
+   - pic/RMS/zéros/échantillons aux limites du PCM;
+   - compteurs de notes actives mises à jour et anciennes candidates au filtre.
+   Les observations de file vide ne sont pas automatiquement des underruns
+   audibles; exclure démarrage, pause, fermeture et distinguer les abandons.
+   Utiliser les constantes libctru de conversion de ticks. L'écart de ticks
+   mesure une durée murale, PAS du temps CPU exclusif. Ne pas inventer un
+   compteur CPU si la plateforme ne l'expose pas.
+5. Si un callback NDSP de diagnostic est ajouté, il ne doit appeler ni le
+   moteur, ni le logger, ni prendre sBufferLock : DoClose/ndspExit pourraient
+   attendre ce callback. Publier seulement des instantanés bornés avec une
+   synchronisation adaptée à ARM11; pas de lecture concurrente de compteurs
+   64 bits non protégés. Utiliser une génération de slot, pas sequence_id seul.
+6. Ne pas corriger spéculativement les coupures dans ce lot. Si elles restent :
+   - file à zéro + PCM propre => sous-alimentation/attente à quantifier;
+   - pool plein + droppedFrames>0 => violation de capacité;
+   - file saine + PCM déjà faux => synthèse/import/données;
+   - PCM propre + file saine + sortie fausse => backend/cache/matériel.
+   La cadence future doit conserver l'exclusion entre synthèse et mise à jour
+   du jeu. Copier la boucle autonome de SoH serait une modification dangereuse
+   de ce contrat, pas un correctif mécanique autorisé.
+7. Reconstruire les objets réellement liés. Si le backend est instrumenté,
+   reconstruire libultraship via scripts/build_lus_3ds.py, puis relier le port;
+   ne pas utiliser une ancienne libultraship.a avec --skip-lus.
+
+INVARIANTS:
+- Un seul producteur appelle la synthèse et utilise la DMEM logicielle.
+- Préserver le mutex, les conditions et la barrière de fin du traitement audio.
+- NO_LAYER reste ((SequenceLayer*)(-1)); ne pas le remplacer par NULL.
+- Préserver la politique des autres plateformes, dont l'exclusion Wii U.
+- 32000 frames/s nominales, stéréo s16 little-endian entrelacée L,R.
+- len=frames*2*sizeof(int16_t); nsamples=frames, pas les octets ni 2*frames.
+- Pas d'écriture dans un wave QUEUED/PLAYING; durée de vie jusqu'à DONE.
+- Copie puis flush réussi de toute la plage utile puis ndspChnWaveBufAdd.
+- Préserver 8 allocations de 2048 frames, DesiredBuffered=2048,
+  buffer producteur 544*2 s16 et séquence 528/544/528 dans ce premier lot.
+- Préserver les corrections existantes : taux fixe de tous les presets,
+  limites ADPCM, aHiLoGain en octets et bypass 3DS de la commande 19.
+
+DO NOT MODIFY:
+Renderer, stéréoscopie, gameplay, assets, séquences musicales, sauvegardes,
+UI, résolution, fréquence CPU, volumes ou conversions/resamplers pour masquer
+ce défaut. Ne pas modifier Graph_ProcessGfxCommands ni CMake pour changer la
+synchronisation. Ne pas remplacer le backend NDSP.
+Ne pas modifier platform/3ds/source/audio_runtime_3ds.cpp ni audio_ndsp_3ds.cpp :
+ce ne sont pas les fichiers audio actifs de la cible CMake analysée.
+Ne pas modifier les importers audio sur la base d'une hypothèse non observée.
+
+EXPECTED AUDIO FORMAT:
+Source fournie au backend : 32000 sample frames/s nominales, deux canaux,
+PCM signé 16 bits little-endian, entrelacé L0,R0,L1,R1,...
+Une frame=4 octets. Blocs : 528 frames=2112 octets=16,5 ms;
+544 frames=2176 octets=17 ms. Chaque soumission copie le bloc dans un wave
+linéaire de capacité 8192 octets; nsamples indique seulement sa partie valide.
+Le DSP adapte ce flux à son horloge interne; ce rééchantillonnage matériel
+n'est pas un motif pour changer le taux moteur de 32000 Hz.
+
+VALIDATION:
+- Diff de production minimal et limité au filtre de AudioPlayback_ProcessNotes.
+- Test de non-régression --require-fixed positif après changement, négatif avant.
+- Notes basses valides : ADSR/vibrato/InitSampleState atteints; needsInit transmis
+  au slice de synthèse avant effacement; NO_LAYER et contrôle Wii U inchangés.
+- Les quatre tests existants passent : test_mm_3ds_timing_audio.py,
+  test_mm_audio_specs.py, test_mm_adpcm_boundaries.py, test_mm_mixer_effects.py.
+- Aucune identité de construction n'est inférée d'un build réussi : conserver
+  la version source et identifier le .cia/.3dsx réellement installé.
+- L'absence de glitch audio est validée sur matériel, pas par compilation ni
+  uniquement par les tests hôte à doubles.
+
+REMAINING HARDWARE TESTS:
+- A/B original/correctif seul, mêmes archives, même scène, mêmes réglages.
+- Journaliser gAudioCtx et quelques parentLayer valides, jamais le sentinelle;
+  confirmer l'activité des notes et la transmission de needsInit.
+- Écouter attaques, notes tenues, relâchements, musique et effets sonores.
+- Mesurer séparément sous-charge normale et scène coûteuse : occupation,
+  temps entre blocs, temps de synthèse, slots disponibles, frames perdues.
+- Vérifier le cœur réellement utilisé et les codes Result des flushs.
+- Comparer .3dsx et .cia; exclure pause/veille/démarrage des compteurs de manque.
+- Si le son reste faux, capturer du PCM avant NDSP dans une petite capture RAM
+  bornée, puis sauvegarder hors du chemin temps réel. Une sinusoïde à phase
+  continue peut isoler le backend; conserver sa cadence pour ne pas masquer
+  les coupures. Ne pas confondre ce test avec la validation du mixer.
+
+=== END PATCH CONTRACT ===

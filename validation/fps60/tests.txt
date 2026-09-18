@@ -1,0 +1,176 @@
+2Ship3DS AUDIO-FIX wizard v1.0.2-FPS60 — host validation
+New profile derived from 2SHIP3DS-AUDIO-FIX-WIZARD-v1.0.2.zip.
+Host C++/Python fixtures; NOT a devkitARM build, Windows UI or New 3DS performance/PCM test.
+
+
+$ python tests/test_mm_3ds_fps60.py
+PASS R_UPDATE_RATE=1: 60 logic submissions, 60 render submissions, 60 audio blocks, 32000 sample frames (simulated second)
+PASS R_UPDATE_RATE=2: 30 logic submissions, 60 render submissions, 60 audio blocks, 32000 sample frames (simulated second)
+PASS R_UPDATE_RATE=3: 20 logic submissions, 60 render submissions, 60 audio blocks, 32000 sample frames (simulated second)
+PASS FPS60: absent default, 18 saved-setting combinations, session rate changes and upper cap
+PASS non-3DS: default 20, uncapped desktop 120, vsync and refresh matching unchanged
+
+EXIT CODE: 0
+
+$ python tests/test_mm_3ds_timing_audio.py
+PASS: 24 FPS cases; null/native per-tick bounds, idle exclusion, blocking barrier, 32000 Hz cadence
+
+EXIT CODE: 0
+
+$ python tests/test_mm_audio_specs.py
+PASS: desktop policy preserved; reproduces 4 oversized spec0x13 splits
+PASS: native 21 specs, 84 real splits fit 208-sample DMEM; exact 32000 Hz
+
+EXIT CODE: 0
+
+$ python tests/test_mm_adpcm_boundaries.py
+PASS: desktop control reproduces V8 DMEM address61216/count3904
+PASS: 480 native ADPCM boundary cases; looping, oneshot, normal offsets fit DMEM
+
+EXIT CODE: 0
+
+$ python tests/test_mm_mixer_effects.py
+PASS: 77 PCM gain vectors with whole-DMEM canaries; 5 MM no-op boundaries; legacy controls fail safely
+
+EXIT CODE: 0
+
+$ python tests/test_mm_note_address_gate.py . --require-fixed
+Source SHA256: e462a5e0d6bb641e768f692c5c3f6da1ee306bdf6c5fb06b5ecb6605a24e0b18
+Production guard: fixed
+original_3ds_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+original_3ds_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+original_3ds_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_3ds_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+fixed_guard_3ds_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+fixed_guard_3ds_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+original_wiiu_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+original_wiiu_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+original_wiiu_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_wiiu_control active layer=0x404060 adsr=1 vibrato=1 state_writes=1 frequency=2 velocity=0.4
+fixed_guard_wiiu_control after real Sync: note_needsInit=0 slice_needsInit=1 slice_enabled=1
+fixed_guard_wiiu_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+original_other_platform_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+original_other_platform_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+original_other_platform_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+fixed_guard_other_platform_control active layer=0x404060 adsr=0 vibrato=0 state_writes=0 frequency=-7 velocity=-7
+fixed_guard_other_platform_control after real Sync: note_needsInit=0 slice_needsInit=0 slice_enabled=0
+fixed_guard_other_platform_control NO_LAYER release: state_writes=1 frequency=1.5 PASS
+PASS: actual ProcessNotes control flow; low-address active/repeated/release cases; no PCM/hardware claim.
+
+EXIT CODE: 0
+
+$ python tests/test_build_wizard.py
+test_archive_cancellation (__main__.ArchiveTests.test_archive_cancellation) ... ok
+test_crc_corruption_detected (__main__.ArchiveTests.test_crc_corruption_detected) ... ok
+test_duplicate_rejected (__main__.ArchiveTests.test_duplicate_rejected) ... ok
+test_invalid_metadata (__main__.ArchiveTests.test_invalid_metadata) ... ok
+test_little_endian (__main__.ArchiveTests.test_little_endian) ... ok
+test_metadata_only_does_not_claim_crc (__main__.ArchiveTests.test_metadata_only_does_not_claim_crc) ... ok
+test_mm_major_version_rule (__main__.ArchiveTests.test_mm_major_version_rule) ... ok
+test_other_major_rejected (__main__.ArchiveTests.test_other_major_rejected) ... ok
+test_otr_name_rejected (__main__.ArchiveTests.test_otr_name_rejected) ... ok
+test_renamed_rom_rejected (__main__.ArchiveTests.test_renamed_rom_rejected) ... ok
+test_support_expected_version_and_additions (__main__.ArchiveTests.test_support_expected_version_and_additions) ... ok
+test_support_full_version (__main__.ArchiveTests.test_support_full_version) ... ok
+test_support_missing_additions_warning (__main__.ArchiveTests.test_support_missing_additions_warning) ... ok
+test_backups_keep_objects (__main__.CacheTests.test_backups_keep_objects) ... ok
+test_correct_cache_resumes (__main__.CacheTests.test_correct_cache_resumes) ... ok
+test_different_sdk_rejected (__main__.CacheTests.test_different_sdk_rejected) ... ok
+test_moved_cache_rejected (__main__.CacheTests.test_moved_cache_rejected) ... ok
+test_other_generator_rejected (__main__.CacheTests.test_other_generator_rejected) ... ok
+test_partial_cache_requires_clean (__main__.CacheTests.test_partial_cache_requires_clean) ... ok
+test_project_lock_and_recovery (__main__.CacheTests.test_project_lock_and_recovery) ... ok
+test_symlink_cache_refused (__main__.CacheTests.test_symlink_cache_refused) ... ok
+test_bom_and_unicode_path (__main__.ConfigTests.test_bom_and_unicode_path) ... ok
+test_empty_output (__main__.ConfigTests.test_empty_output) ... ok
+test_invalid_bool (__main__.ConfigTests.test_invalid_bool) ... ok
+test_invalid_mode (__main__.ConfigTests.test_invalid_mode) ... ok
+test_job_bounds_and_types (__main__.ConfigTests.test_job_bounds_and_types) ... ok
+test_audio_fix_present_and_identical (__main__.CopyAndAudioTests.test_audio_fix_present_and_identical) ... ok
+test_checked_copy_keeps_source (__main__.CopyAndAudioTests.test_checked_copy_keeps_source) ... ok
+test_copy_rejects_source_mutation (__main__.CopyAndAudioTests.test_copy_rejects_source_mutation) ... ok
+test_copy_to_self_refused (__main__.CopyAndAudioTests.test_copy_to_self_refused) ... ok
+test_copy_will_not_overwrite_existing_file (__main__.CopyAndAudioTests.test_copy_will_not_overwrite_existing_file) ... ok
+test_old_guard_rejected (__main__.CopyAndAudioTests.test_old_guard_rejected) ... ok
+test_bad_png_rejected (__main__.PackagingTests.test_bad_png_rejected) ... ok
+test_compiled_artwork_validation (__main__.PackagingTests.test_compiled_artwork_validation) ... ok
+test_no_cia_never_invokes_makerom_and_embeds_smdh (__main__.PackagingTests.test_no_cia_never_invokes_makerom_and_embeds_smdh) ... ok
+test_png_dimensions (__main__.PackagingTests.test_png_dimensions) ... ok
+test_failed_build_never_publishes_ready_folder (__main__.PipelineTests.test_failed_build_never_publishes_ready_folder) ... ok
+test_pipeline_stages_without_overwriting_old_result (__main__.PipelineTests.test_pipeline_stages_without_overwriting_old_result) ... ok
+test_preflight_standard_citro3d_location (__main__.PipelineTests.test_preflight_standard_citro3d_location) ... ok
+test_json_status_is_readable (__main__.ProcessTests.test_json_status_is_readable) ... ok
+test_marker_cancels_before_process_starts (__main__.ProcessTests.test_marker_cancels_before_process_starts) ... ok
+test_subprocess_failure_is_not_retried (__main__.ProcessTests.test_subprocess_failure_is_not_retried) ... ok
+test_timeout_terminates_child (__main__.ProcessTests.test_timeout_terminates_child) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 0.830s
+
+OK
+
+EXIT CODE: 0
+
+$ python tests/test_wizard_artwork.py
+Packaging: bannertool
+[INFO] Created SMDH "/tmp/2ship-artwork-gl_zyr2v/defaults/icon.smdh".
+Packaging: bannertool
+[INFO] Created banner "/tmp/2ship-artwork-gl_zyr2v/defaults/banner.bnr".
+Packaging: bannertool
+[INFO] Created SMDH "/tmp/2ship-artwork-gl_zyr2v/custom/icon.smdh".
+Packaging: bannertool
+[INFO] Created banner "/tmp/2ship-artwork-gl_zyr2v/custom/banner.bnr".
+PASS: real custom PNG -> SMDH/CBMD; source images unchanged
+PASS: compiled SMDH/CBMD preserved byte-for-byte
+No GUI, ARM game build, or hardware validation is implied.
+
+EXIT CODE: 0
+
+$ python tests/test_build_clock.py
+test_all_cache_paths_validated_before_moving_first (__main__.ClockTests.test_all_cache_paths_validated_before_moving_first) ... ok
+test_both_old_caches_are_preserved_before_repair (__main__.ClockTests.test_both_old_caches_are_preserved_before_repair) ... ok
+test_build_lus_checks_clock_then_configures_then_checks_manifest (__main__.ClockTests.test_build_lus_checks_clock_then_configures_then_checks_manifest) ... ok
+test_cloud_reparse_points_not_confused_with_junctions (__main__.ClockTests.test_cloud_reparse_points_not_confused_with_junctions) ... ok
+test_gate_missing_ninja_fails_clearly (__main__.ClockTests.test_gate_missing_ninja_fails_clearly) ... ok
+test_gate_timeout_is_bounded (__main__.ClockTests.test_gate_timeout_is_bounded) ... ok
+test_linked_cache_is_rejected_before_timestamp_repair (__main__.ClockTests.test_linked_cache_is_rejected_before_timestamp_repair) ... ok
+test_noop_preserves_existing_cache_location (__main__.ClockTests.test_noop_preserves_existing_cache_location) ... ok
+test_past_timestamps_not_touched (__main__.ClockTests.test_past_timestamps_not_touched) ... ok
+test_repairs_future_inputs_without_byte_changes (__main__.ClockTests.test_repairs_future_inputs_without_byte_changes) ... ok
+test_sdk_archives_saves_and_backups_are_not_touched (__main__.ClockTests.test_sdk_archives_saves_and_backups_are_not_touched) ... ok
+test_second_run_is_noop (__main__.ClockTests.test_second_run_is_noop) ... ok
+test_source_symlinks_are_not_followed (__main__.ClockTests.test_source_symlinks_are_not_followed) ... ok
+test_real_gate_reports_external_future_input_without_mutating_it (__main__.RealNinjaTests.test_real_gate_reports_external_future_input_without_mutating_it) ... ok
+test_real_historical_100_regeneration_loop_then_fixed_compilation (__main__.RealNinjaTests.test_real_historical_100_regeneration_loop_then_fixed_compilation) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 3.198s
+
+OK
+
+EXIT CODE: 0
+
+NEGATIVE CONTROL: unchanged v1.0.2 (expected failure: old 20 FPS default)
+native.exe: /tmp/2ship-fps60-eeaqk4b0/native.cpp:305: int main(): Assertion `globals.GetInterpolationFPS() == 60' failed.
+Traceback (most recent call last):
+  File "/mnt/data/fps60_work/2Ship3DS/tests/test_mm_3ds_fps60.py", line 275, in <module>
+    main()
+    ~~~~^^
+  File "/mnt/data/fps60_work/2Ship3DS/tests/test_mm_3ds_fps60.py", line 271, in main
+    subprocess.run([str(exe)], check=True, timeout=20)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/2ship-fps60-eeaqk4b0/native.exe']' died with <Signals.SIGABRT: 6>.
+NEGATIVE CONTROL EXIT: 1
+
+ALL REQUESTED HOST CHECKS PASSED; HISTORICAL FPS60 NEGATIVE CONTROL FAILED AS EXPECTED.
+
+Preparation note: the first local artwork run required restoring the bundled Linux tools
+execute permission after Python ZIP extraction. No binary/source bytes were altered.
+After that local permission fix the full suite above was rerun and passed.
+
+Archive comparison: exactly 3 pre-existing files modified; 8903 unchanged; 0 deleted.
+Game production delta: only native FPS initialization and fallback in BenPort.cpp.
+Other two deltas: wizard version string and window title, now 1.0.2-FPS60.

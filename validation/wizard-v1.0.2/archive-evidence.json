@@ -1,0 +1,74 @@
+{
+  "input_archive": "LANCER-WIZARD.zip",
+  "input_sha256": "6431a62316504fee33c66a38b95ce1b27e3aed05e861ec5166007b6469a763dd",
+  "timestamps": [
+    {
+      "path": "cmake/3DS.cmake",
+      "zip_dos_time": [
+        2026,
+        9,
+        16,
+        8,
+        9,
+        54
+      ],
+      "zip_extended_unix_mtime": 1789560594,
+      "zip_extended_utc": "2026-09-16T12:09:54+00:00"
+    },
+    {
+      "path": "third_party/build-deps/prism/CMakeLists.txt",
+      "zip_dos_time": [
+        2026,
+        9,
+        16,
+        8,
+        9,
+        54
+      ],
+      "zip_extended_unix_mtime": 1789560594,
+      "zip_extended_utc": "2026-09-16T12:09:54+00:00"
+    },
+    {
+      "path": "third_party/libultraship/CMakeLists.txt",
+      "zip_dos_time": [
+        2026,
+        9,
+        16,
+        8,
+        9,
+        54
+      ],
+      "zip_extended_unix_mtime": 1789560594,
+      "zip_extended_utc": "2026-09-16T12:09:54+00:00"
+    },
+    {
+      "path": "third_party/libultraship/build-3ds/CMakeCache.txt",
+      "zip_dos_time": [
+        2026,
+        9,
+        16,
+        5,
+        22,
+        52
+      ],
+      "zip_extended_unix_mtime": 1789550573,
+      "zip_extended_utc": "2026-09-16T09:22:53+00:00"
+    },
+    {
+      "path": "third_party/libultraship/build-3ds/build.ninja",
+      "zip_dos_time": [
+        2026,
+        9,
+        16,
+        5,
+        25,
+        28
+      ],
+      "zip_extended_unix_mtime": 1789550728,
+      "zip_extended_utc": "2026-09-16T09:25:28+00:00"
+    }
+  ],
+  "actual_user_error": "ninja: error: manifest 'build.ninja' still dirty after 100 tries, perhaps system time is not set",
+  "interpretation": "Archive source inputs are newer than the generated manifest. The same timestamp-ordering defect is reproduced with real CMake/Ninja on the host.",
+  "upstream_reference": "https://ninja-build.org/manual.html#ref_dependencies"
+}
