@@ -1,188 +1,208 @@
-# Reconstruire 2Ship 3DS sous Windows
+Rebuilding 2Ship 3DS on Windows
 
-Ce dossier contient un portage expérimental de 2Ship 5.0.1 pour Nintendo 3DS,
-doté du renderer et des backends natifs Blinky. La compilation et les vérifications des
-conteneurs ne prouvent pas le fonctionnement du jeu sur console. Les résultats
-de test de la livraison sont décrits séparément dans son README utilisateur.
+This directory contains an experimental Nintendo 3DS port of 2Ship 5.0.1,
+featuring the Blinky renderer and native backends. Successful compilation and
+container verification do not prove that the game functions correctly on real
+hardware. The release test results are documented separately in its user-facing
+README.
 
-## Sources de référence
+Reference Sources
 
-Le jeu provient de HarbourMasters/2ship2harkinian, commit
-`6bfd6a35a0e0d8900273e61ce85cb038d4f4a528`, version `5.0.1`. Les bibliothèques
-publiques gardent leurs licences et auteurs. Les modules natifs Blinky et les
-scripts de construction de la livraison 07 sont développés séparément.
-L’alpha 3 de 999sian sert uniquement à la comparaison de provenance.
+The game is based on HarbourMasters/2ship2harkinian, commit
+6bfd6a35a0e0d8900273e61ce85cb038d4f4a528, version 5.0.1. Public libraries
+retain their original licenses and authorship. The native Blinky modules and the
+release 07 build scripts were developed separately. 999sian’s alpha 3 is used
+only for provenance comparison.
 
-`build.py` construit Majora’s Mask avec le SDK devkitPro installé. Le lanceur
-`LANCER-WIZARD.bat` ouvre désormais un petit lanceur de compilation PowerShell.
-Son utilisation est décrite dans `WIZARD-LIRE-MOI.md`. Les anciens patchs et tests
-des backends retirés restent archivés dans la livraison 06, extérieure à ces sources.
+build.py builds Majora’s Mask using the installed devkitPro SDK. The
+LANCER-WIZARD.bat launcher now opens a small PowerShell build frontend.
+Its usage is documented in WIZARD-LIRE-MOI.md. Older patches and tests for
+removed backends remain archived in release 06, outside these sources.
 
-## 1. Préparer la chaîne de compilation
+1. Prepare the Build Toolchain
 
-Les commandes ci-dessous utilisent devkitPro dans `C:\devkitPro`, chemin
-de l'environnement testé. Un autre emplacement se désigne avec
-`--devkitpro` ; adapter aussi le chemin de Python dans les commandes.
-Utiliser les outils Windows natifs de `C:\devkitPro\msys2\mingw64\bin` pour CMake,
-Ninja et Python. Il faut Python 3.10 ou ultérieur et CMake 3.26 ou ultérieur.
-Les versions observées sur la machine de compilation sont détaillées dans
-`THIRD-PARTY.md`.
+The commands below use devkitPro installed in C:\devkitPro, which is the path
+used in the tested environment. Another installation location can be specified
+with --devkitpro; the Python path in the commands must also be adjusted
+accordingly.
 
-La chaîne ARM doit fournir :
+Use the native Windows tools from C:\devkitPro\msys2\mingw64\bin for CMake,
+Ninja, and Python. Python 3.10 or later and CMake 3.26 or later are required.
+The versions observed on the build machine are listed in THIRD-PARTY.md.
 
-- `devkitARM/bin/arm-none-eabi-gcc.exe` et `arm-none-eabi-g++.exe` ;
-- les en-têtes et archives statiques libctru et citro3d ;
-- `tools/bin/picasso.exe` et `tools/bin/3dsxtool.exe` ;
-- sous `portlibs/3ds/include` : SDL2, libzip, zlib, tinyxml2, spdlog et
-  nlohmann/json ;
-- sous `portlibs/3ds/lib` : `libSDL2.a`, `libzip.a`,
-  `libzlibstatic.a`, `libtinyxml2.a`, `libspdlog.a`, ainsi que les fichiers de
-  configuration CMake installés avec ces bibliothèques.
+The ARM toolchain must provide:
 
-Ces bibliothèques doivent être compilées **pour ARM/3DS**. Des bibliothèques
-MinGW x64 ne conviennent pas à l'édition de liens du jeu. `build.py` utilise
-une installation SDK existante ; il n'installe pas les paquets et ne compile
-pas automatiquement les bibliothèques de `portlibs` manquantes.
+* devkitARM/bin/arm-none-eabi-gcc.exe and arm-none-eabi-g++.exe;
+* the libctru and citro3d headers and static libraries;
+* tools/bin/picasso.exe and tools/bin/3dsxtool.exe;
+* under portlibs/3ds/include: SDL2, libzip, zlib, tinyxml2, spdlog, and
+    nlohmann/json;
+* under portlibs/3ds/lib: libSDL2.a, libzip.a,
+    libzlibstatic.a, libtinyxml2.a, libspdlog.a, as well as the CMake
+    configuration files installed with these libraries.
 
-Le build V7 utilisait les recettes suivantes pour compléter `portlibs/3ds` :
+These libraries must be compiled for ARM/3DS. MinGW x64 libraries cannot be
+used when linking the game. build.py uses an existing SDK installation; it
+does not install packages or automatically build missing portlibs libraries.
 
-| Bibliothèque | Révision | Options particulières |
-| --- | --- | --- |
-| zlib | `v1.3.1` | `ZLIB_BUILD_EXAMPLES=OFF` |
-| libzip | `v1.11.4` | BZIP2, LZMA, ZSTD et fournisseurs de cryptographie désactivés ; outils, tests, exemples et docs désactivés ; `LIBZIP_DO_INSTALL=ON` |
-| nlohmann/json | `v3.12.0` | `JSON_BuildTests=OFF` |
-| tinyxml2 | `11.0.0` | `tinyxml2_BUILD_TESTING=OFF` |
-| spdlog | `v1.16.0` | `SPDLOG_BUILD_EXAMPLE=OFF`, `SPDLOG_BUILD_TESTS=OFF` |
-| SDL2 | `release-2.32.10` | `SDL_SHARED=OFF`, `SDL_STATIC=ON`, `SDL_TEST=OFF`, `SDL_TESTS=OFF` |
+The V7 build used the following upstream revisions and build options to complete
+portlibs/3ds:
 
-Pour reconstituer une bibliothèque manquante à partir de sa révision amont,
-la configuration commune est : `-G Ninja`, `-DCMAKE_BUILD_TYPE=Release`,
-`-DCMAKE_POLICY_VERSION_MINIMUM=3.10`, `-DBUILD_SHARED_LIBS=OFF`,
-`-DCMAKE_TOOLCHAIN_FILE=<sources>/cmake/3DS.cmake`,
-`-DCMAKE_PREFIX_PATH=C:/devkitPro/portlibs/3ds` et
-`-DCMAKE_INSTALL_PREFIX=C:/devkitPro/portlibs/3ds`. Définir aussi
-`DEVKITPRO=C:/devkitPro`. Compiler avec `cmake --build`, puis installer avec
-`cmake --install`. Construire zlib avant libzip. Les liens amont figurent dans
-`THIRD-PARTY.md`.
+Library	Revision	Special options
+zlib	v1.3.1	ZLIB_BUILD_EXAMPLES=OFF
+libzip	v1.11.4	BZIP2, LZMA, ZSTD, and cryptography providers disabled; tools, tests, examples, and documentation disabled; LIBZIP_DO_INSTALL=ON
+nlohmann/json	v3.12.0	JSON_BuildTests=OFF
+tinyxml2	11.0.0	tinyxml2_BUILD_TESTING=OFF
+spdlog	v1.16.0	SPDLOG_BUILD_EXAMPLE=OFF, SPDLOG_BUILD_TESTS=OFF
+SDL2	release-2.32.10	SDL_SHARED=OFF, SDL_STATIC=ON, SDL_TEST=OFF, SDL_TESTS=OFF
 
-## 2. Lancer la reconstruction complète
+To rebuild a missing library from its upstream revision, the common
+configuration is:
 
-Dans PowerShell, se placer dans le dossier contenant `build.py` :
+-G Ninja, -DCMAKE_BUILD_TYPE=Release,
+-DCMAKE_POLICY_VERSION_MINIMUM=3.10, -DBUILD_SHARED_LIBS=OFF,
+-DCMAKE_TOOLCHAIN_FILE=<sources>/cmake/3DS.cmake,
+-DCMAKE_PREFIX_PATH=C:/devkitPro/portlibs/3ds, and
+-DCMAKE_INSTALL_PREFIX=C:/devkitPro/portlibs/3ds.
 
-```powershell
+Also define DEVKITPRO=C:/devkitPro.
+
+Build with cmake --build, then install with cmake --install. Build zlib
+before libzip. Upstream links are listed in THIRD-PARTY.md.
+
+2. Run the Full Reconstruction
+
+In PowerShell, open the directory containing build.py:
+
 & 'C:\devkitPro\msys2\mingw64\bin\python.exe' .\build.py --devkitpro C:/devkitPro --jobs 4 --output .\dist
-```
 
-Le script configure et compile successivement :
+The script configures and builds, in order:
 
-1. le libultraship local avec backends Blinky, dans `third_party/libultraship/build-3ds` ;
-2. les sources C/C++ de MM, le rendu et les codecs, dans `build-arm` ;
-3. les conteneurs 3DSX, CIA et CCI à partir du même ELF.
+1. the local libultraship with Blinky backends, in
+    third_party/libultraship/build-3ds;
+2. the MM C/C++ sources, renderer, and codecs, in build-arm;
+3. the 3DSX, CIA, and CCI containers from the same ELF.
 
-Les sources ImGui, prism, Monocypher, thread-pool et stb sont fournies dans
-`third_party/build-deps`. Leur configuration est hors ligne. Ogg, Vorbis,
-Opus, opusfile et libpng sont aussi compilés depuis leurs sources locales.
-Les exécutables makerom et bannertool sont dans `tools/windows`, avec leurs
-licences et leurs empreintes vérifiées avant utilisation.
+The ImGui, prism, Monocypher, thread-pool, and stb sources are included under
+third_party/build-deps. Their configuration is fully offline. Ogg, Vorbis,
+Opus, opusfile, and libpng are also built from local source trees.
 
-Le kit source se décompresse dans un autre dossier : ses scripts calculent
-les chemins depuis leur propre emplacement. Aucun cache CMake ni objet ARM
-n'est fourni. Les sources nécessaires à cette cible 3DS sont incluses ;
-une initialisation des sous-modules desktop de 2Ship n'est pas nécessaire.
-Le fonctionnement hors ligne suppose que le SDK et les bibliothèques ARM
-de la section 1 sont déjà installés. Leur installation initiale reste une
-étape séparée. La reconstruction dans un nouveau dossier n'a pas fait
-l'objet d'un second build complet ; les chemins et l'inventaire du kit
-ont été vérifiés séparément.
+The makerom and bannertool executables are provided under tools/windows,
+together with their licenses and verified fingerprints.
 
-Options utiles :
+The source kit can be extracted into any other directory: its scripts calculate
+paths relative to their own location. No CMake cache or ARM object files are
+included.
 
-```powershell
-# Produire uniquement l'ELF et le 3DSX du build.
+All sources required for this 3DS target are included; initializing the desktop
+2Ship submodules is not necessary.
+
+Offline reconstruction assumes that the SDK and the ARM libraries described in
+section 1 are already installed. Their initial installation remains a separate
+step.
+
+A complete second build from a newly extracted directory was not performed;
+the kit paths and inventory were verified separately.
+
+Useful options:
+
+# Produce only the ELF and 3DSX.
 & 'C:\devkitPro\msys2\mingw64\bin\python.exe' .\build.py --devkitpro C:/devkitPro --jobs 4 --no-package
-
-# Réutiliser LUS après une modification uniquement côté jeu.
+# Reuse LUS after making changes only to the game-side code.
 & 'C:\devkitPro\msys2\mingw64\bin\python.exe' .\build.py --devkitpro C:/devkitPro --jobs 4 --skip-lus
-
-# Reconditionner explicitement un ELF déjà compilé.
+# Explicitly repackage an already-built ELF.
 & 'C:\devkitPro\msys2\mingw64\bin\python.exe' .\scripts\package_3ds.py --elf .\build-arm\2ship-3ds.elf --output .\dist --devkitpro C:/devkitPro
-```
 
-`--skip-lus` suppose une archive LUS déjà reconstruite avec ce kit. Ne pas
-réutiliser une archive binaire de SoH : MM utilise un masque de boutons
-`uint32_t`, contre `uint16_t` par défaut dans l'ancien moteur. Une différence
-de largeur change les structures et certaines signatures C++.
+--skip-lus requires a LUS archive already rebuilt using this source kit. Do
+not reuse a SoH binary archive: MM uses a uint32_t button mask, whereas the
+older engine uses uint16_t by default. A difference in field width changes
+structure layouts and some C++ signatures.
 
-`--emulator-safe` désactive l'activation de la fréquence CPU New 3DS par le
-renderer (`osSetSpeedupEnable(true)`). Les appels de démarrage propres à
-libctru restent possibles. Ce réglage est prévu pour diagnostiquer un
-émulateur ; il ne constitue pas une validation du gameplay. Le réglage
-ordinaire reste la valeur par défaut.
+--emulator-safe disables the renderer’s New 3DS CPU speedup call
+(osSetSpeedupEnable(true)). libctru-specific startup calls may still occur.
+This mode is intended for emulator diagnostics and does not constitute gameplay
+validation. The standard configuration remains the default.
 
-## 3. Retrouver les résultats
+3. Locate the Build Outputs
 
-Un build complet place notamment dans `dist` :
+A complete build places, among other files, the following under dist:
 
-- `SD/3ds/2ship/2ship-3ds.3dsx` et `2ship-3ds.smdh` ;
-- `SD/cias/2ship-3ds.cia` ;
-- `2ship-3ds.3ds`, véritable conteneur cartouche CCI/NCSD ;
-- `2ship-3ds.elf` et `package-manifest.json`.
+* SD/3ds/2ship/2ship-3ds.3dsx and 2ship-3ds.smdh;
+* SD/cias/2ship-3ds.cia;
+* 2ship-3ds.3ds, a real CCI/NCSD cartridge container;
+* 2ship-3ds.elf and package-manifest.json.
 
-`build-arm/build-report.json` indique le résultat de la commande. Le manifeste
-de packaging contient les empreintes des fichiers, le TitleID
-`0004000002534800` et les contrôles structurels effectués. Ce TitleID
-expérimental diffère de celui de SoH ; il n'est pas présenté comme une
-allocation officielle.
+build-arm/build-report.json records the result of the build command. The
+packaging manifest contains file fingerprints, the TitleID
+0004000002534800, and the structural checks that were performed.
 
-Le packager n'intègre pas la ROM ni les données du jeu dans les conteneurs.
-Le RomFS embarqué ne contient qu'un readme. Les archives `mm.o2r` et
-`2ship.o2r` doivent être placées dans `/3ds/2ship/` sur la carte SD. Elles sont
-gérées séparément dans la livraison utilisateur. La compilation ne les
-régénère pas. Une ROM renommée `.o2r` ou une archive MPQ `.otr` ne convient pas.
+This experimental TitleID differs from SoH’s and is not presented as an
+officially allocated identifier.
 
-Le `mm.o2r` du kit SD initial V1 a été extrait avec l'exécutable officiel Windows
-2Ship 5.0.1, en lui passant explicitement une copie de la ROM compatible :
-`2ship.exe baserom.z64`. Le rapport `mm-extraction.json` décrit cette opération.
-L'archive support doit correspondre au commit source du port ; consulter
-`2ship.provenance.json` pour ses ajouts depuis la release officielle.
+The packager does not embed the ROM or game data inside the containers. The
+embedded RomFS contains only a readme file.
 
-Le kit SOURCES ne contient pas `mm.o2r`. Pour reconstruire l'archive support
-depuis le `2ship.o2r` officiel Windows 5.0.1, utiliser une destination distincte :
+The mm.o2r and 2ship.o2r archives must be placed under /3ds/2ship/ on the
+SD card. They are handled separately in the user release. The build process does
+not regenerate them.
 
-```powershell
-python .\scripts\prepare_support.py --base C:\Chemin\Release-5.0.1\2ship.o2r --output .\dist\SD\3ds\2ship\2ship.o2r
-```
+A ROM merely renamed to .o2r, or an MPQ .otr archive, is not compatible.
 
-Le script vérifie l'empreinte de l'archive officielle, conserve ses ressources
-converties et ajoute les 15 ressources brutes présentes dans le commit MM.
-Il écrit aussi un fichier `.provenance.json`. Le kit SD initial V1 fournit déjà
-l'archive support correspondante. Le correctif V2 contient uniquement les
-exécutables ; il conserve les archives, réglages et sauvegardes existants.
+The mm.o2r included with the initial V1 SD kit was extracted using the
+official Windows 2Ship 5.0.1 executable, explicitly passing it a copy of the
+compatible ROM:
 
-## Contrôles techniques et limites
+2ship.exe baserom.z64
 
-- ARMv6K, VFPv2 et ABI hard-float, sans NEON ; calcul du jeu sans fast-math.
-- Le fichier `cmake/AudioCodecs3DS.cmake` construit de vrais décodeurs
-  Opus/opusfile, sans réseau HTTP/TLS ni DRED/OSCE.
-- Les entrées HID et le menu inférieur sont gérés par Blinky. Les tests du
-  pont de manette vérifient notamment la conservation des bits de commandes MM.
-- Le packager vérifie le format ARM de l'ELF, les métadonnées, les identifiants
-  et les hashes NCCH, ainsi que l'identité ExeFS/RomFS entre CIA et CCI.
+The mm-extraction.json report documents this operation.
 
-Pour lancer les régressions maintenues de ce port MM, avec un compilateur C++ hôte dans
-`PATH` ou désigné par `CXX` :
+The support archive must correspond to the source commit used by the port. See
+2ship.provenance.json for the resources added relative to the official
+release.
 
-```powershell
+The SOURCES kit does not include mm.o2r. To rebuild the support archive from
+the official Windows 5.0.1 2ship.o2r, use a separate output path:
+
+python .\scripts\prepare_support.py --base C:\Path\To\Release-5.0.1\2ship.o2r --output .\dist\SD\3ds\2ship\2ship.o2r
+
+The script verifies the fingerprint of the official archive, preserves its
+converted resources, and adds the 15 raw resources present in the MM commit. It
+also writes a .provenance.json file.
+
+The initial V1 SD kit already includes the corresponding support archive. The
+V2 patch contains only the executables; it preserves the existing archives,
+settings, and save data.
+
+Technical Checks and Limitations
+
+* ARMv6K, VFPv2, and hard-float ABI, without NEON; game-side calculations are
+    built without fast-math.
+* cmake/AudioCodecs3DS.cmake builds real Opus/opusfile decoders, without
+    HTTP/TLS networking or DRED/OSCE.
+* HID input and the lower-screen menu are handled by Blinky. The controller
+    bridge tests verify, among other things, preservation of MM command bits.
+* The packager verifies the ARM ELF format, metadata, identifiers, and NCCH
+    hashes, as well as ExeFS/RomFS identity between the CIA and CCI builds.
+
+To run the maintained regression tests for this MM port, with a host C++
+compiler available in PATH or specified through CXX:
+
 python .\scripts\verify_port.py
-```
 
-Les tests peuvent aussi être lancés individuellement, par exemple
-`python tests/test_2ship_scene_eviction.py` et
-`python tests/test_mm_control_merge.py`. Le compilateur de ces tests doit être
-un compilateur hôte, pas `arm-none-eabi-g++`.
+Tests can also be run individually, for example:
 
-Si les sources ou la chaîne de compilation ont été déplacées, repartir d'un
-nouveau dossier de build : les caches CMake contiennent des chemins absolus.
-Renommer les anciens dossiers `build-arm` et
-`third_party/libultraship/build-3ds` avant de relancer conserve les anciens
-résultats et permet une configuration propre.
+python tests/test_2ship_scene_eviction.py
+
+and
+
+python tests/test_mm_control_merge.py
+
+The compiler used for these tests must be a host compiler, not
+arm-none-eabi-g++.
+
+If the sources or toolchain have been moved, start again from a new build
+directory: CMake caches contain absolute paths.
+
+Renaming the previous build-arm and
+third_party/libultraship/build-3ds directories before rebuilding preserves
+the old results while allowing a clean configuration.
