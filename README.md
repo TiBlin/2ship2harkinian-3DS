@@ -1,262 +1,118 @@
 # 2Ship3DS
 
-Experimental New Nintendo 3DS port of 2Ship2Harkinian / The Legend of Zelda: Majora’s Mask.
+Experimental New Nintendo 3DS port of **2Ship2Harkinian / The Legend of Zelda: Majora's Mask**, based on the 2Ship 5.0.1 source tree and a native PICA200/Citro3D backend.
 
-## Current development version: Blinky 12
-Status: Functional on real New Nintendo 3DS hardware, but still experimental and under heavy optimization.
+> **Status:** experimental development build. This source revision has host-side regression coverage, but it has not been fully validated on real New 3DS hardware after the latest stability changes. Expect incomplete rendering, performance issues, missing resources, audio defects, or crashes.
 
+## Highlights
 
-## About
+- Native New Nintendo 3DS target using devkitARM, libctru and Citro3D.
+- 60 FPS presentation target through the existing interpolation path.
+- Adaptive 3DS frameskip: late interpolated frames may be skipped while the final render of each game tick is preserved.
+- 3DS audio fixes, including the Majora's Mask note-address gate correction.
+- Resource-loading and lifetime hardening from the first stability audit.
+- Windows build wizard in English.
+- ROM drag-and-drop workflow that can generate the required O2R archives and build a **3DSX-only** SD-card layout.
+- No ROM is included in this repository.
 
-2Ship3DS is an experimental port of 2Ship2Harkinian targeting the New Nintendo 3DS family.
+## Quick start — Windows wizard
 
-The project currently uses BlinkyCitro3ds, a custom rendering backend developed specifically for this port using the native 3DS graphics stack.
+Extract the repository to a normal folder and run:
 
-The primary goal is to establish a stable native 3DS implementation first, then progressively improve performance and move more rendering work toward efficient PICA200 / Citro3D execution.
+```text
+START-WIZARD.bat
+```
 
-This project is still in an early development stage and should not yet be considered a finished or production-quality port.
+The GUI lets you validate the toolchain, choose existing `mm.o2r` / `2ship.o2r` archives, optionally select a custom icon, and build the port. The custom CIA banner selector was intentionally removed; CIA packaging uses the built-in default banner.
 
+See [WIZARD-README.md](WIZARD-README.md) for the full workflow.
 
-## Current Status
+## Quick start — drag a ROM onto the launcher
 
-The game currently boots and runs on real New Nintendo 3DS hardware.
+Drag **one supported Majora's Mask ROM** onto `START-WIZARD.bat`.
 
-A hardware test lasting approximately one hour was completed across multiple scenes without a crash.
+The automatic path will:
 
-Gameplay, File Select and scene transitions are functional.
+1. validate the ROM against the supported hashes used by 2Ship;
+2. generate `mm.o2r`;
+3. prepare the matching `2ship.o2r` support archive;
+4. rebuild the 3DS port;
+5. produce **3DSX only**;
+6. publish an SD-ready folder named exactly `sd`.
 
-Known startup issue
+Expected output:
 
-The title screen is currently not rendered correctly and appears black.
+```text
+sd/
+└── 3ds/
+    └── 2ship/
+        ├── 2ship-3ds.3dsx
+        ├── mm.o2r
+        └── 2ship.o2r
+```
 
-The game is still running during this black screen, and the File Select screen remains accessible.
+The ROM itself is never copied into the output folder.
 
-Therefore, a black screen immediately after startup does not necessarily mean that the game has crashed.
+## Manual build
 
+See [BUILDING.md](BUILDING.md).
 
-## Performance
+Typical Windows command with devkitPro installed at `C:\devkitPro`:
 
-Performance is currently one of the main limitations of the port.
+```powershell
+& 'C:\devkitPro\msys2\mingw64\bin\python.exe' .\build.py --devkitpro C:/devkitPro --jobs 4 --output .\dist
+```
 
-The game is capped at:
+A clean rebuild is strongly recommended after changing libultraship, resource-loading code, audio code, or the renderer.
 
-20 FPS
+## Current stability work
 
-This is only an upper limit. Some scenes may run significantly below 20 FPS.
+The current source includes the first stability-hardening pass. It addresses several independently reproducible classes of bugs, including:
 
-The current performance cost mainly comes from the still-experimental implementation of BlinkyCitro3ds.
+- out-of-bounds binary reads;
+- texture payload range validation;
+- inconsistent concurrent resource-cache publication;
+- persistent graphics commands retaining raw pointers to evictable resources;
+- a cache-report lifetime issue;
+- NDSP close/flush race handling;
+- XML / `.meta` null handling;
+- a null-resource crash observed in `ResourceMgr_LoadIfDListByName`.
 
-Some rendering paths currently involve:
+The audit does **not** claim that the port is globally stable. Save-file replacement is still a known risk if an I/O failure occurs mid-write, and required-resource failures still need more end-to-end handling.
 
-* CPU-side rendering work;
-* expensive memory copies;
-* synchronization overhead;
-* temporary fallback paths;
-* incomplete hardware acceleration;
-* rendering operations that have not yet been optimized for the PICA200.
+See [docs/STABILITY-AUDIT.md](docs/STABILITY-AUDIT.md) and [docs/CRASH26.md](docs/CRASH26.md).
 
-These are active development areas.
+## Performance model
 
+The game logic is not forced to run at 60 Hz. The port targets 60 FPS through frame interpolation. When rendering falls behind, the 3DS-specific adaptive path may skip optional interpolated frames; it does not intentionally skip the final render of a game tick or the game/audio update itself.
 
-## BlinkyCitro3ds
+See [docs/FPS60.md](docs/FPS60.md) and [docs/FPS60-AUTO.md](docs/FPS60-AUTO.md).
 
-BlinkyCitro3ds is the custom rendering backend being developed for 2Ship3DS.
+## Audio
 
-It is designed specifically around the capabilities and constraints of the Nintendo 3DS GPU and Citro3D.
+The source includes the 3DS fix that disables an N64-address heuristic in `AudioPlayback_ProcessNotes` on 3DS. The old heuristic could reject valid native `SequenceLayer` pointers and skip ADSR/vibrato/sample-state updates.
 
-The renderer is still experimental and currently prioritizes correctness and stability over maximum performance.
+See [docs/AUDIO-FIX.md](docs/AUDIO-FIX.md).
 
-Blinky 12
+## Repository layout
 
-Blinky 12 introduces an experimental conservative occlusion system.
+```text
+platform/3ds/        3DS platform layer and renderer
+third_party/2ship/   2Ship / Majora's Mask source tree
+third_party/libultraship/
+                     local libultraship source used by the 3DS build
+wizard/              Python wizard backend and ROM-drop worker
+scripts/             build, packaging and support-archive tools
+tests/               host-side regression tests
+docs/                port-specific technical notes
+```
 
-Its purpose is to avoid submitting geometry to the GPU when that geometry can be safely determined to be completely hidden.
+## Game data
 
-The system currently includes:
+This repository does **not** include a ROM or `mm.o2r`. Game assets are supplied by the user from a compatible legally obtained ROM. The generated archives are separate from the source repository and should not be committed.
 
-* conservative occlusion testing for selected static opaque geometry;
-* a small 50 × 30 depth grid;
-* a limited CPU processing budget;
-* skipped GPU submissions for geometry proven to be hidden;
-* preservation of actor draw callbacks;
-* diagnostic instrumentation.
+## Credits, provenance and licensing
 
-If visibility cannot be determined with sufficient confidence, the geometry is rendered normally.
+This port builds on 2Ship2Harkinian, libultraship, devkitPro/libctru/Citro3D, and additional third-party libraries and prior 3DS work. See [THIRD-PARTY.md](THIRD-PARTY.md) and [platform/3ds/PROVENANCE.md](platform/3ds/PROVENANCE.md) for the detailed source and license/provenance notes.
 
-This intentionally favors correctness over aggressive culling.
-
-Diagnostic data
-
-Blinky can collect information such as:
-
-* occlusion tests;
-* occlusion rejections;
-* skipped triangles;
-* skipped draw calls;
-* CPU time spent performing occlusion;
-* GPU submissions;
-* frame timing information.
-
-See:
-
-BLINKY-OCCLUSION-12.md
-
-for additional implementation details.
-
-
-##Current Known Issues
-
-The following limitations are currently known:
-
-* title screen appears black;
-* File Select remains accessible after the black title screen;
-* performance can be poor depending on the scene;
-* framerate may fall considerably below 20 FPS;
-* BlinkyCitro3ds is not yet fully optimized;
-* some rendering operations still perform expensive CPU-side work;
-* graphical glitches may occur;
-* the occlusion system is still experimental;
-* hardware behavior may differ between scenes.
-
-Additional bugs are expected at this stage of development.
-
-
-## Hardware
-
-This project currently targets:
-
-* New Nintendo 3DS
-* New Nintendo 3DS XL
-* New Nintendo 2DS XL
-
-The additional CPU performance of the New 3DS family is currently required.
-
-Support for the original Nintendo 3DS / 2DS family is not currently a development target.
-
-## Installation
-
-Release builds may contain both:
-
-* .3dsx
-* .cia
-
-Homebrew Launcher
-
-Copy the supplied SD card files to the appropriate location on your SD card and launch the .3dsx through the Homebrew Launcher.
-
-CIA
-
-Install the supplied .cia using a compatible title manager on a console configured to run homebrew software.
-
-Keep your existing game data and save files in their expected locations.
-
-
-## Game Assets
-
-No copyrighted Majora’s Mask game data is distributed with this repository or its releases.
-
-You must provide the required game data yourself from a legally obtained copy where applicable.
-
-This repository contains porting and compatibility work only.
-
-
-## Building
-
-2Ship3DS is intended to be built using the Nintendo 3DS development toolchain, including:
-
-* devkitPro
-* devkitARM
-* libctru
-* Citro3D
-
-The port also depends on the upstream 2Ship2Harkinian / libultraship codebase and its associated components.
-
-The build system is still evolving as the port develops.
-
-
-## Testing
-
-Hardware testing is especially useful for this project because emulator behavior does not always reproduce the performance characteristics and limitations of a real New Nintendo 3DS.
-
-When reporting a problem, please include:
-
-* console model;
-* .3dsx or .cia;
-* game location / scene;
-* reproduction steps;
-* approximate FPS if available;
-* frame time if available;
-* blinky.log;
-* screenshots or video when relevant.
-
-For crashes, please also include the corresponding Luma crash dump when available.
-
-Important
-
-A black screen during the title-screen phase is currently a known rendering issue.
-
-Do not automatically report it as a crash if the game continues to File Select.
-
-
-## Development Priorities
-
-Current development work is focused on:
-
-1. improving BlinkyCitro3ds performance;
-2. reducing CPU-side rendering overhead;
-3. reducing unnecessary memory copies and synchronization;
-4. moving more work onto the PICA200 GPU;
-5. improving visibility and occlusion handling;
-6. fixing remaining rendering issues;
-7. improving frame pacing;
-8. maintaining stability on real hardware.
-
-The current priority is stable execution first, optimization second.
-
-## Upstream Projects
-
-2Ship3DS exists because of the work of several upstream projects and communities.
-
-The project builds upon work including:
-
-* 2Ship2Harkinian / HarbourMasters
-* Majora’s Mask decompilation project
-* libultraship
-* devkitPro
-* libctru
-* Citro3D
-
-Their respective licenses, copyright notices and attribution requirements remain applicable.
-
-## Credits
-
-2Ship2Harkinian / HarbourMasters
-
-2Ship3DS is based on the architecture and codebase of 2Ship2Harkinian.
-
-Majora’s Mask decompilation
-
-The Majora’s Mask reverse-engineering and decompilation work made projects such as 2Ship2Harkinian possible.
-
-999sian / soh-3ds
-
-Special thanks to 999sian for their work on the Nintendo 3DS port of Ship of Harkinian.
-
-Their project has served as a useful technical reference during development of the 3DS platform work.
-
-Any potential integration of relevant portions of that project’s code is subject to the appropriate permission and licensing requirements.
-
-BlinkyCitro3ds
-
-BlinkyCitro3ds is the custom renderer developed specifically for this port.
-
-
-## Project Status
-
-2Ship3DS should currently be considered experimental software.
-
-It is already capable of running Majora’s Mask gameplay on real New Nintendo 3DS hardware, but substantial optimization, testing and rendering work remains.
-
-Expect bugs, graphical issues and poor performance in some areas.
-
-Contributions, technical investigation and hardware test results are welcome.
+Third-party components retain their own licenses. Nothing in this repository grants rights to Nintendo game data or ROM contents.
