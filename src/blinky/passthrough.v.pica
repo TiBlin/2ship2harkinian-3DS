@@ -1,0 +1,19 @@
+; Blinky packed vertices already contain PICA clip coordinates.
+.out position position
+.out color color
+.out uv0 texcoord0
+.out uv1 texcoord1
+.out foguv texcoord2
+.in clip v0
+.in rgba v1
+.in texture0 v2
+.in texture1 v3
+.in fogcoord v4
+.proc main
+    mov position, clip
+    mov color, rgba
+    mov uv0, texture0
+    mov uv1, texture1
+    mov foguv, fogcoord
+    end
+.end
