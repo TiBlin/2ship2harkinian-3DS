@@ -1,0 +1,38 @@
+2Ship3DS ROM-drop builder 1.0.6-EN-ROMDROP
+Source folder: C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier
+Log: C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier\wizard-logs\romdrop-20260918-160020-6fa782\romdrop.log
+
+=== Validating ROM ===
+ROM: NTSC-U 1.0 | SHA-1 d6133ace5afaa0882cf214cf88daba39e266c078
+
+=== Checking devkitPro and source tree ===
+devkitPro: C:\devkitPro
+Python: C:\devkitPro\msys2\mingw64\bin\python.exe
+CMake: C:\devkitPro\msys2\mingw64\bin\cmake.EXE
+
+=== Preparing official desktop extractor ===
+Using cached official 2Ship 5.0.1 extraction kit: C:\Users\antoi\AppData\Local\2Ship3DS-Wizard\desktop-2ship-5.0.1
+
+=== Generating O2R archives ===
+Using cached mm.o2r for NTSC-U 1.0.
+Preparing the 3DS support 2ship.o2r from the pinned official 5.0.1 archive...
+Checking 2ship-3ds-5.0.1.tmp.o2r...
+CRC 2ship-3ds-5.0.1.tmp.o2r: 1017/1017 entries
+OK 2ship-3ds-5.0.1.tmp.o2r: version 5.0.1, 1017 entries.
+Checking mm-d6133ace5afaa0882cf214cf88daba39e266c078.o2r...
+CRC mm-d6133ace5afaa0882cf214cf88daba39e266c078.o2r: 50496/50496 entries
+OK mm-d6133ace5afaa0882cf214cf88daba39e266c078.o2r: version 5.0.1, 50496 entries.
+Checking 2ship-3ds-5.0.1.o2r...
+CRC 2ship-3ds-5.0.1.o2r: 1017/1017 entries
+OK 2ship-3ds-5.0.1.o2r: version 5.0.1, 1017 entries.
+
+=== Building 2Ship3DS ===
+> C:\devkitPro\msys2\mingw64\bin\python.exe -u "C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier\build.py" --devkitpro C:\devkitPro --jobs 4 --no-package
+> C:\devkitPro\msys2\mingw64\bin\python.exe -u "C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier\scripts\package_3ds.py" --elf "C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier\build-arm\2ship-3ds.elf" --output C:\Users\antoi\AppData\Local\2Ship3DS-Wizard\2ship3ds-romdrop-package-6ly6jhwl --devkitpro C:\devkitPro --no-cia
+
+=== Publishing sd folder ===
+
+SUCCESS
+SD-ready folder: C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier\sd
+Contains only: 2ship-3ds.3dsx, mm.o2r, and 2ship.o2r under sd/3ds/2ship/.
+Copy the CONTENTS of the sd folder to the root of your SD card.

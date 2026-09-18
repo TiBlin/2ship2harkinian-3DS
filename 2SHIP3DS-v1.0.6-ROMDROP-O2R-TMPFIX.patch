@@ -1,0 +1,34 @@
+--- orig106/wizard/rom_drop_build.py	2026-09-18 19:39:55.000000000 +0000
++++ fix106/wizard/rom_drop_build.py	2026-09-18 19:57:26.156301344 +0000
+@@ -337,7 +337,7 @@
+ 
+     # Full CRC validation occurs before caching or publishing.
+     record = bw.inspect_archive(target, False, full_crc=True, log=log)
+-    temp = cached.with_suffix(".o2r.tmp")
++    temp = cached.with_suffix(".tmp.o2r")
+     temp.unlink(missing_ok=True)
+     shutil.copyfile(target, temp)
+     need(sha(temp) == record["sha256"], "mm.o2r changed while it was being cached.")
+@@ -361,7 +361,7 @@
+                 return output
+         except Exception:
+             pass
+-    temp = output.with_suffix(".o2r.tmp")
++    temp = output.with_suffix(".tmp.o2r")
+     temp.unlink(missing_ok=True)
+     log("Preparing the 3DS support 2ship.o2r from the pinned official 5.0.1 archive...")
+     prepare_support(base, temp)
+--- orig106/tests/test_rom_drop_wizard.py	2026-09-18 19:37:44.000000000 +0000
++++ fix106/tests/test_rom_drop_wizard.py	2026-09-18 19:57:26.156447013 +0000
+@@ -140,6 +140,11 @@
+         self.assertIn('"mm.o2r"', text)
+         self.assertIn('"2ship.o2r"', text)
+ 
++    def test_romdrop_temporary_o2r_files_keep_o2r_extension(self):
++        text = (ROOT / "wizard/rom_drop_build.py").read_text(encoding="utf-8")
++        self.assertEqual(text.count('with_suffix(".tmp.o2r")'), 2)
++        self.assertNotIn('with_suffix(".o2r.tmp")', text)
++
+ 
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)

@@ -1,0 +1,65 @@
+{
+  "wizard_version": "1.0.6-EN-ROMDROP",
+  "mode": "rom-drop",
+  "started": 1789761620.980052,
+  "hardware_tested": false,
+  "rom_bundled": false,
+  "success": true,
+  "rom": {
+    "sha1": "d6133ace5afaa0882cf214cf88daba39e266c078",
+    "name": "NTSC-U 1.0",
+    "size": 33554432
+  },
+  "desktop_release_support_sha256": "69b615ba25c6788bd1e4e120608d28e56e99fa6c2d9553d61d722a4457ad109a",
+  "o2r": {
+    "mm": {
+      "source": "C:\\Users\\antoi\\AppData\\Local\\2Ship3DS-Wizard\\generated-o2r\\mm-d6133ace5afaa0882cf214cf88daba39e266c078.o2r",
+      "name": "mm.o2r",
+      "version": [
+        5,
+        0,
+        1
+      ],
+      "entries": 50496,
+      "crc_checked": true,
+      "sha256": "ae2bd2285b48e574c85ec23b0a69751968733c0d5c7197e374ce54459d1a5169",
+      "size": 36251863,
+      "missing_support_resources": [],
+      "semantic_resources_validated": false
+    },
+    "support": {
+      "source": "C:\\Users\\antoi\\AppData\\Local\\2Ship3DS-Wizard\\generated-o2r\\2ship-3ds-5.0.1.o2r",
+      "name": "2ship.o2r",
+      "version": [
+        5,
+        0,
+        1
+      ],
+      "entries": 1017,
+      "crc_checked": true,
+      "sha256": "c31d1582fd886aeca6849063f2d43f67d0cdbc682d22061daa39b0fab9806377",
+      "size": 1177443,
+      "missing_support_resources": [],
+      "semantic_resources_validated": false
+    }
+  },
+  "output_files": [
+    {
+      "path": "3ds/2ship/2ship-3ds.3dsx",
+      "size": 17665164,
+      "sha256": "6d9e95242c66d10aee6184a1d2d1c263fa3ba71b451991ab3a25746e6d5cb7e5"
+    },
+    {
+      "path": "3ds/2ship/mm.o2r",
+      "size": 36251863,
+      "sha256": "ae2bd2285b48e574c85ec23b0a69751968733c0d5c7197e374ce54459d1a5169"
+    },
+    {
+      "path": "3ds/2ship/2ship.o2r",
+      "size": 1177443,
+      "sha256": "c31d1582fd886aeca6849063f2d43f67d0cdbc682d22061daa39b0fab9806377"
+    }
+  ],
+  "finished": 1789763040.5988092,
+  "output": "C:\\Users\\antoi\\OneDrive\\Bureau\\Nouveau dossier (5)\\Nouveau dossier\\sd"
+}

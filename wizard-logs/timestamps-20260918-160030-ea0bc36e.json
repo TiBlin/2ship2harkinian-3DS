@@ -1,0 +1,20 @@
+{
+  "checked_at_ns": 1789761623827700800,
+  "changed_count": 2,
+  "source_bytes_modified": false,
+  "files": [
+    {
+      "path": "build.py",
+      "old_mtime_ns": 1789774594000000000
+    },
+    {
+      "path": "scripts/build_clock.py",
+      "old_mtime_ns": 1789774594000000000
+    }
+  ],
+  "cache_backups": [],
+  "target_mtime_ns": 1789761630801566500,
+  "maximum_lead_seconds": 12970.172,
+  "journal": "wizard-logs/timestamps-20260918-160030-ea0bc36e.json",
+  "completed": true
+}

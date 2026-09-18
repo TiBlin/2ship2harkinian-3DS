@@ -1,0 +1,27 @@
+2Ship3DS ROM-drop builder 1.0.6-EN-ROMDROP
+Source folder: C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier
+Log: C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier\wizard-logs\romdrop-20260918-155350-60cbef\romdrop.log
+
+=== Validating ROM ===
+ROM: NTSC-U 1.0 | SHA-1 d6133ace5afaa0882cf214cf88daba39e266c078
+
+=== Checking devkitPro and source tree ===
+devkitPro: C:\devkitPro
+Python: C:\devkitPro\msys2\mingw64\bin\python.exe
+CMake: C:\devkitPro\msys2\mingw64\bin\cmake.EXE
+
+=== Preparing official desktop extractor ===
+Downloading the official 2Ship 5.0.1 Windows release used only for ROM extraction...
+https://github.com/2ship2harkinian/2ship2harkinian/releases/download/5.0.1/2Ship-Battler-Bravo-Win64.zip
+Downloaded 27 MiB...
+Official extraction kit cached at: C:\Users\antoi\AppData\Local\2Ship3DS-Wizard\desktop-2ship-5.0.1
+
+=== Generating O2R archives ===
+Generating mm.o2r from: C:\Users\antoi\OneDrive\Bureau\Nouveau dossier (5)\Nouveau dossier\Legend of Zelda, The - Majora's Mask (USA).z64
+The official extractor window may appear while this step runs; no game assets are bundled by the wizard.
+Checking mm.o2r...
+CRC mm.o2r: 50496/50496 entries
+OK mm.o2r: version 5.0.1, 50496 entries.
+Preparing the 3DS support 2ship.o2r from the pinned official 5.0.1 archive...
+
+ERROR: Select an .o2r archive, not a ROM or .otr file: 2ship-3ds-5.0.1.o2r.tmp

@@ -1,0 +1,16 @@
+{
+  "wizard_version": "1.0.6-EN-ROMDROP",
+  "mode": "rom-drop",
+  "started": 1789761230.0677257,
+  "hardware_tested": false,
+  "rom_bundled": false,
+  "success": false,
+  "rom": {
+    "sha1": "d6133ace5afaa0882cf214cf88daba39e266c078",
+    "name": "NTSC-U 1.0",
+    "size": 33554432
+  },
+  "desktop_release_support_sha256": "69b615ba25c6788bd1e4e120608d28e56e99fa6c2d9553d61d722a4457ad109a",
+  "error": "Select an .o2r archive, not a ROM or .otr file: 2ship-3ds-5.0.1.o2r.tmp",
+  "finished": 1789761299.6651268
+}
