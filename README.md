@@ -1,118 +1,213 @@
 # 2Ship3DS
 
-Experimental New Nintendo 3DS port of **2Ship2Harkinian / The Legend of Zelda: Majora's Mask**, based on the 2Ship 5.0.1 source tree and a native PICA200/Citro3D backend.
+Experimental New Nintendo 3DS port of 2Ship2Harkinian / The Legend of Zelda: Majora's Mask, based on the 2Ship 5.0.1 source tree and a native PICA200/Citro3D backend.
 
-> **Status:** experimental development build. This source revision has host-side regression coverage, but it has not been fully validated on real New 3DS hardware after the latest stability changes. Expect incomplete rendering, performance issues, missing resources, audio defects, or crashes.
+## Status
 
-## Highlights
+**Experimental / Pre-Alpha**
+
+This is an active development port. It boots and runs on real New Nintendo 3DS hardware, but it is not yet stable. Crashes can still occur during normal gameplay.
+
+## Features
 
 - Native New Nintendo 3DS target using devkitARM, libctru and Citro3D.
-- 60 FPS presentation target through the existing interpolation path.
-- Adaptive 3DS frameskip: late interpolated frames may be skipped while the final render of each game tick is preserved.
-- 3DS audio fixes, including the Majora's Mask note-address gate correction.
-- Resource-loading and lifetime hardening from the first stability audit.
-- Windows build wizard in English.
-- ROM drag-and-drop workflow that can generate the required O2R archives and build a **3DSX-only** SD-card layout.
-- No ROM is included in this repository.
+- Native PICA200 rendering backend.
+- 60 FPS presentation target through 2Ship's existing interpolation system.
+- Adaptive 3DS frameskip.
+- 3DS-specific audio fixes.
+- Resource-loading and lifetime hardening.
+- Windows build wizard entirely in English.
+- ROM drag-and-drop build/install workflow.
+- 3DSX and CIA build support through the graphical wizard.
 
-## Quick start — Windows wizard
+## Credits
 
-Extract the repository to a normal folder and run:
+### 999sian / soh-3ds
 
-```text
+Special thanks to **999sian**, author of the `soh-3ds` project.
+
+Parts of the Nintendo 3DS work in this project were adapted from or inspired by his work on Ship of Harkinian for Nintendo 3DS, including portions of the 3DS platform implementation and lower-screen UI work.
+
+These portions are used and redistributed with explicit permission from 999sian.
+
+### Upstream Projects
+
+2Ship3DS also builds on the work of:
+
+- HarbourMasters / 2Ship2Harkinian
+- libultraship
+- devkitPro
+- libctru
+- Citro3D
+- the Majora's Mask decompilation community
+
+## Installation
+
+### Drag-and-Drop Installation
+
+The easiest installation method is the included ROM drag-and-drop workflow.
+
+Drag a supported Majora's Mask ROM onto:
+
 START-WIZARD.bat
-```
 
-The GUI lets you validate the toolchain, choose existing `mm.o2r` / `2ship.o2r` archives, optionally select a custom icon, and build the port. The custom CIA banner selector was intentionally removed; CIA packaging uses the built-in default banner.
+The automatic workflow will:
 
-See [WIZARD-README.md](WIZARD-README.md) for the full workflow.
-
-## Quick start — drag a ROM onto the launcher
-
-Drag **one supported Majora's Mask ROM** onto `START-WIZARD.bat`.
-
-The automatic path will:
-
-1. validate the ROM against the supported hashes used by 2Ship;
-2. generate `mm.o2r`;
-3. prepare the matching `2ship.o2r` support archive;
-4. rebuild the 3DS port;
-5. produce **3DSX only**;
-6. publish an SD-ready folder named exactly `sd`.
+1. Validate the ROM.
+2. Generate `mm.o2r`.
+3. Prepare `2ship.o2r`.
+4. Build the Nintendo 3DS port.
+5. Generate the 3DSX version.
+6. Create an SD-card-ready folder named `sd`.
 
 Expected output:
 
-```text
 sd/
 └── 3ds/
     └── 2ship/
         ├── 2ship-3ds.3dsx
         ├── mm.o2r
         └── 2ship.o2r
-```
 
-The ROM itself is never copied into the output folder.
+### Graphical Build Wizard
 
-## Manual build
+Run:
 
-See [BUILDING.md](BUILDING.md).
+START-WIZARD.bat
 
-Typical Windows command with devkitPro installed at `C:\devkitPro`:
+without dragging a ROM onto it to open the graphical wizard.
 
-```powershell
-& 'C:\devkitPro\msys2\mingw64\bin\python.exe' .\build.py --devkitpro C:/devkitPro --jobs 4 --output .\dist
-```
+## Manual Build
 
-A clean rebuild is strongly recommended after changing libultraship, resource-loading code, audio code, or the renderer.
+See:
 
-## Current stability work
+BUILDING.md
 
-The current source includes the first stability-hardening pass. It addresses several independently reproducible classes of bugs, including:
+## Performance
 
-- out-of-bounds binary reads;
-- texture payload range validation;
-- inconsistent concurrent resource-cache publication;
-- persistent graphics commands retaining raw pointers to evictable resources;
-- a cache-report lifetime issue;
-- NDSP close/flush race handling;
-- XML / `.meta` null handling;
-- a null-resource crash observed in `ResourceMgr_LoadIfDListByName`.
+The game logic is not forced to run at 60 Hz.
 
-The audit does **not** claim that the port is globally stable. Save-file replacement is still a known risk if an I/O failure occurs mid-write, and required-resource failures still need more end-to-end handling.
+The port targets 60 FPS through 2Ship's existing interpolation system.
 
-See [docs/STABILITY-AUDIT.md](docs/STABILITY-AUDIT.md) and [docs/CRASH26.md](docs/CRASH26.md).
+When rendering falls behind, optional interpolated frames may be skipped while preserving the final render of every game tick.
 
-## Performance model
+### Adaptive Frameskip
 
-The game logic is not forced to run at 60 Hz. The port targets 60 FPS through frame interpolation. When rendering falls behind, the 3DS-specific adaptive path may skip optional interpolated frames; it does not intentionally skip the final render of a game tick or the game/audio update itself.
+The adaptive system does not intentionally skip:
 
-See [docs/FPS60.md](docs/FPS60.md) and [docs/FPS60-AUTO.md](docs/FPS60-AUTO.md).
+- game logic;
+- audio updates;
+- the final render of a game tick.
+
+60 FPS is a target, not a guarantee.
 
 ## Audio
 
-The source includes the 3DS fix that disables an N64-address heuristic in `AudioPlayback_ProcessNotes` on 3DS. The old heuristic could reject valid native `SequenceLayer` pointers and skip ADSR/vibrato/sample-state updates.
+The 3DS audio path includes a Majora's Mask-specific fix in:
 
-See [docs/AUDIO-FIX.md](docs/AUDIO-FIX.md).
+AudioPlayback_ProcessNotes
 
-## Repository layout
+The original N64-address heuristic could incorrectly reject valid native `SequenceLayer` pointers on Nintendo 3DS.
 
-```text
-platform/3ds/        3DS platform layer and renderer
-third_party/2ship/   2Ship / Majora's Mask source tree
+See:
+
+docs/AUDIO-FIX.md
+
+## Stability
+
+The current source includes the first major stability-hardening pass.
+
+It addresses several classes of bugs including:
+
+- out-of-bounds binary reads;
+- texture payload validation;
+- resource-cache concurrency issues;
+- resource lifetime issues;
+- NDSP close/flush races;
+- invalid XML / `.meta` handling;
+- null resource dereferences.
+
+### Known Crash Behavior
+
+The port is **not crash-proof**.
+
+Crashes can still occur during normal gameplay and scene transitions.
+
+A successful compilation does not guarantee a stable hardware build.
+
+### Crash Reports
+
+When reporting a crash, include:
+
+crash_dump_XXXXXXXX.dmp
+2ship-3ds.elf
+package-manifest.json
+
+The ELF and manifest must come from the exact same build that produced the crash.
+
+## Repository Layout
+
+platform/3ds/
+    Nintendo 3DS platform layer and renderer
+
+third_party/2ship/
+    2Ship / Majora's Mask source tree
+
 third_party/libultraship/
-                     local libultraship source used by the 3DS build
-wizard/              Python wizard backend and ROM-drop worker
-scripts/             build, packaging and support-archive tools
-tests/               host-side regression tests
-docs/                port-specific technical notes
-```
+    Local libultraship source used by the 3DS build
 
-## Game data
+wizard/
+    Windows wizard backend and ROM drag-and-drop worker
 
-This repository does **not** include a ROM or `mm.o2r`. Game assets are supplied by the user from a compatible legally obtained ROM. The generated archives are separate from the source repository and should not be committed.
+scripts/
+    Build and packaging tools
 
-## Credits, provenance and licensing
+tests/
+    Host-side regression tests
 
-This port builds on 2Ship2Harkinian, libultraship, devkitPro/libctru/Citro3D, and additional third-party libraries and prior 3DS work. See [THIRD-PARTY.md](THIRD-PARTY.md) and [platform/3ds/PROVENANCE.md](platform/3ds/PROVENANCE.md) for the detailed source and license/provenance notes.
+docs/
+    Port-specific technical documentation
 
-Third-party components retain their own licenses. Nothing in this repository grants rights to Nintendo game data or ROM contents.
+## Game Assets
+
+This repository does not contain:
+
+- a Majora's Mask ROM;
+- `mm.o2r`;
+- copyrighted Nintendo game assets.
+
+Game assets must be generated by the user from a compatible legally obtained ROM.
+
+## Provenance and Licensing
+
+2Ship3DS combines original Nintendo 3DS-specific development with work originating from:
+
+- HarbourMasters / 2Ship2Harkinian;
+- libultraship;
+- 999sian / soh-3ds;
+- devkitPro / libctru / Citro3D;
+- additional third-party projects.
+
+See:
+
+THIRD-PARTY.md
+platform/3ds/PROVENANCE.md
+
+Third-party components retain their respective licenses.
+
+Nothing in this repository grants rights to Nintendo ROMs, game assets, trademarks or other copyrighted game data.
+
+## Development Status
+
+**Status:** Experimental / Pre-Alpha  
+**Hardware target:** New Nintendo 3DS family  
+**Upstream base:** 2Ship2Harkinian 5.0.1
+
+Current development priorities:
+
+- stability;
+- renderer correctness;
+- performance;
+- resource handling;
+- audio;
+- hardware compatibility.
