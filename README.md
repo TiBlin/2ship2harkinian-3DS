@@ -5,7 +5,6 @@ Experimental New Nintendo 3DS port of 2Ship2Harkinian / The Legend of Zelda: Maj
 ## Current development version: Blinky 12
 Status: Functional on real New Nintendo 3DS hardware, but still experimental and under heavy optimization.
 
-⸻
 
 ## About
 
@@ -17,7 +16,6 @@ The primary goal is to establish a stable native 3DS implementation first, then 
 
 This project is still in an early development stage and should not yet be considered a finished or production-quality port.
 
-⸻
 
 ## Current Status
 
@@ -35,7 +33,6 @@ The game is still running during this black screen, and the File Select screen r
 
 Therefore, a black screen immediately after startup does not necessarily mean that the game has crashed.
 
-⸻
 
 ## Performance
 
@@ -60,7 +57,6 @@ Some rendering paths currently involve:
 
 These are active development areas.
 
-⸻
 
 ## BlinkyCitro3ds
 
@@ -107,7 +103,6 @@ BLINKY-OCCLUSION-12.md
 
 for additional implementation details.
 
-⸻
 
 ##Current Known Issues
 
@@ -125,7 +120,6 @@ The following limitations are currently known:
 
 Additional bugs are expected at this stage of development.
 
-⸻
 
 ## Hardware
 
@@ -138,8 +132,6 @@ This project currently targets:
 The additional CPU performance of the New 3DS family is currently required.
 
 Support for the original Nintendo 3DS / 2DS family is not currently a development target.
-
-⸻
 
 ## Installation
 
@@ -158,7 +150,6 @@ Install the supplied .cia using a compatible title manager on a console configur
 
 Keep your existing game data and save files in their expected locations.
 
-⸻
 
 ## Game Assets
 
@@ -168,7 +159,6 @@ You must provide the required game data yourself from a legally obtained copy wh
 
 This repository contains porting and compatibility work only.
 
-⸻
 
 ## Building
 
@@ -183,7 +173,6 @@ The port also depends on the upstream 2Ship2Harkinian / libultraship codebase an
 
 The build system is still evolving as the port develops.
 
-⸻
 
 ## Testing
 
@@ -208,7 +197,6 @@ A black screen during the title-screen phase is currently a known rendering issu
 
 Do not automatically report it as a crash if the game continues to File Select.
 
-⸻
 
 ## Development Priorities
 
@@ -225,8 +213,6 @@ Current development work is focused on:
 
 The current priority is stable execution first, optimization second.
 
-⸻
-
 ## Upstream Projects
 
 2Ship3DS exists because of the work of several upstream projects and communities.
@@ -242,7 +228,6 @@ The project builds upon work including:
 
 Their respective licenses, copyright notices and attribution requirements remain applicable.
 
-⸻
 ## Credits
 
 2Ship2Harkinian / HarbourMasters
@@ -265,9 +250,8 @@ BlinkyCitro3ds
 
 BlinkyCitro3ds is the custom renderer developed specifically for this port.
 
-⸻
 
-Project Status
+## Project Status
 
 2Ship3DS should currently be considered experimental software.
 
